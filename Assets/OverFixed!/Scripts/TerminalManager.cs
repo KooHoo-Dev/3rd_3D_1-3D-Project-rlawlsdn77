@@ -21,29 +21,7 @@ namespace OverFixed
             TerminalCanvas.gameObject.SetActive(IsTerminal == false);
             
             // 터미널 On/Off 상태 변경
-            IsTerminal = !IsTerminal;
-        }
-
-        public void FocusTerminal()
-        {
-            
-        }
-
-        [SerializeField] private TextMeshPro TerminalText;
-        [SerializeField] private MouseButton terminalButton;
-        
-        private void Start()
-        {
-            
-        }
-
-        private float speed = 12f;
-        private readonly float TerminalAxis = 5f;
-        
-        public void ObjectLoopTerminal()
-        {
-            Vector2 mousePosition = SimpleInput.GetMousePosition();
-
+            IsTerminal = IsTerminal == false;
         }
     }
 }

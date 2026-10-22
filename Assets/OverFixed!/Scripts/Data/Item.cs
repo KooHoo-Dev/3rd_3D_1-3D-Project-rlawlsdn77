@@ -27,11 +27,11 @@ namespace OverFixed
         {
             return new ItemRow
             {
-                ItemID = CsvParser.ToEnum<ItemType>(cells["ItemID"]),
+                ItemID = TsvParser.ToEnum<ItemType>(cells["ItemID"]),
                 Name = cells["Name"],
-                CarrySpeedRate = CsvParser.ToFloat(cells["CarrySpeedRate"]),
-                SpawnWeight = CsvParser.ToFloat(cells["SpawnWeight"]),
-                SpawnDistanceMin = CsvParser.ToFloat(cells["SpawnDistanceMin"]),
+                CarrySpeedRate = TsvParser.ToFloat(cells["CarrySpeedRate"]),
+                SpawnWeight = TsvParser.ToFloat(cells["SpawnWeight"]),
+                SpawnDistanceMin = TsvParser.ToFloat(cells["SpawnDistanceMin"]),
             };
         }
     }

@@ -4,21 +4,21 @@ using System.Globalization;
 
 namespace OverFixed
 {
-    // Csv 파서
-    public static class CsvParser
+    // Tsv 파서 (열 구분은 탭)
+    public static class TsvParser
     {
-        public static List<TRow> ParseRows<TRow>(string csvText, Func<Dictionary<string, string>, TRow> fromCells)
+        public static List<TRow> ParseRows<TRow>(string tsvText, Func<Dictionary<string, string>, TRow> fromCells)
         {
             var rowList = new List<TRow>();
-            string[] lines = csvText.TrimStart('﻿').Split('\n');
-            string[] header = lines[0].Trim().Split(',');
+            string[] lines = tsvText.TrimStart('﻿').Split('\n');
+            string[] header = lines[0].Trim().Split('\t');
 
             for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
             {
                 string line = lines[lineIndex].Trim();
                 if (line.Length == 0) continue;
 
-                string[] values = line.Split(',');
+                string[] values = line.Split('\t');
                 var cells = new Dictionary<string, string>();
                 for (int index = 0; index < header.Length; index++)
                 {
@@ -39,7 +39,7 @@ namespace OverFixed
             return float.Parse(raw, CultureInfo.InvariantCulture);
         }
 
-        // CSV ID가 enum에 없으면 여기서 예외가 나서 오타를 바로 알 수 있다
+        // TSV ID가 enum에 없으면 여기서 예외가 나서 오타를 바로 알 수 있다
         public static T ToEnum<T>(string raw) where T : struct, Enum
         {
             return Enum.Parse<T>(raw);

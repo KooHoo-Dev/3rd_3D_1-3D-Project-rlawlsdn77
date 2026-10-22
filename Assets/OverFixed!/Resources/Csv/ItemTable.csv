@@ -1,8 +1,0 @@
-﻿ItemID,Name,CarrySpeedRate,SpawnWeight,SpawnDistanceMin
-Scrap,고철,1,6,0
-Fuel,연료 셀,0.75,3,0.2
-Crystal,크리스탈,1,1.2,0.8
-Capsule,구조 캡슐,0.6,0,0.4
-Alloy,합금판,0.9,0,0
-Part,정밀 부품,0.9,0,0
-StabCell,안정화 셀,1,0,0

@@ -2,7 +2,7 @@
 
 namespace OverFixed
 {
-    public class CoreMoudleManager : MonoBehaviour
+    public class CoreModuleManager : MonoBehaviour
     {
         
     }

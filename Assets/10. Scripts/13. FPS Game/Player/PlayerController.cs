@@ -57,7 +57,7 @@ namespace Study3D.FpsGame.Player
 
             // 현재 플레이어의 방향에 맞춰서 moveVector를 계산합니다.
             Vector3 moveVector = (transform.right * moveX) + (transform.forward * moveZ);
-            // moveVector의 길이만큼 현재 프레임의 이동량ㄹ이 조정이 됩니다.
+            // moveVector의 길이만큼 현재 프레임의 이동량이 조정이 됩니다.
             controller.Move(moveVector * (speed * Time.deltaTime));
             
             // CharacterController는 쉬운만큼 까다로워서

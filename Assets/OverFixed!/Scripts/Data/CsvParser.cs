@@ -1,0 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace OverFixed
+{
+    // Csv 파서
+    public static class CsvParser
+    {
+        public static List<TRow> ParseRows<TRow>(string csvText, Func<Dictionary<string, string>, TRow> fromCells)
+        {
+            var rowList = new List<TRow>();
+            string[] lines = csvText.TrimStart('﻿').Split('\n');
+            string[] header = lines[0].Trim().Split(',');
+
+            for (int lineIndex = 1; lineIndex < lines.Length; lineIndex++)
+            {
+                string line = lines[lineIndex].Trim();
+                if (line.Length == 0) continue;
+
+                string[] values = line.Split(',');
+                var cells = new Dictionary<string, string>();
+                for (int index = 0; index < header.Length; index++)
+                {
+                    cells[header[index].Trim()] = index < values.Length ? values[index].Trim() : "";
+                }
+                rowList.Add(fromCells(cells));
+            }
+            return rowList;
+        }
+
+        public static int ToInt(string raw)
+        {
+            return int.Parse(raw, CultureInfo.InvariantCulture);
+        }
+
+        public static float ToFloat(string raw)
+        {
+            return float.Parse(raw, CultureInfo.InvariantCulture);
+        }
+
+        // CSV ID가 enum에 없으면 여기서 예외가 나서 오타를 바로 알 수 있다
+        public static T ToEnum<T>(string raw) where T : struct, Enum
+        {
+            return Enum.Parse<T>(raw);
+        }
+
+        // "A;B" → [A, B]. 빈 칸이면 빈 목록
+        public static List<string> ToList(string raw)
+        {
+            var list = new List<string>();
+            foreach (string part in raw.Split(';'))
+            {
+                string value = part.Trim();
+                if (value.Length > 0) list.Add(value);
+            }
+            return list;
+        }
+
+        public static List<float> ToFloatList(string raw)
+        {
+            return ToList(raw).ConvertAll<float>(ToFloat);
+        }
+
+        public static List<T> ToEnumList<T>(string raw) where T : struct, Enum
+        {
+            return ToList(raw).ConvertAll<T>(ToEnum<T>);
+        }
+
+        // "Scrap:2|Crystal:1" → [(Scrap, 2), (Crystal, 1)]
+        public static List<ItemCount> ToItemCounts(string raw)
+        {
+            var countList = new List<ItemCount>();
+            foreach (string part in raw.Split('|'))
+            {
+                string[] pair = part.Split(':');
+                countList.Add(new ItemCount { ItemID = ToEnum<ItemType>(pair[0].Trim()), Count = ToInt(pair[1].Trim()) });
+            }
+            return countList;
+        }
+
+        // "Scrap:3;Fuel:1" → [(Scrap, 3), (Fuel, 1)]
+        public static List<ItemWeight> ToItemWeights(string raw)
+        {
+            var weightList = new List<ItemWeight>();
+            foreach (string part in ToList(raw))
+            {
+                string[] pair = part.Split(':');
+                weightList.Add(new ItemWeight { ItemID = ToEnum<ItemType>(pair[0].Trim()), Weight = ToFloat(pair[1].Trim()) });
+            }
+            return weightList;
+        }
+    }
+}

@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Item
+  - Terminal
+  - Panel
   layers:
   - Default
   - TransparentFX
@@ -16,9 +19,9 @@ TagManager:
   - Terrain
   - Trees
   - 
-  - Item
-  - Terminal
-  - Panel
+  - 
+  - 
+  - 
   - 
   - 
   - 

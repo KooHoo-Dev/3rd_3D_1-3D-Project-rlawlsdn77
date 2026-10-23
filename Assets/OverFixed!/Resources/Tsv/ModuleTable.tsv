@@ -1,0 +1,13 @@
+﻿ModuleID	Name	ShortName	MaxDurability	Price	EffectType	EffectValue	EffectScope	Desc
+Central	중앙 모듈	중앙	0	0	Core	0	Self	코어 · 터미널 · 에어락 · 소화기 거치대
+Airlock	보조 에어락	에어락	100	150	Airlock	6	Self	선외 출입구 추가 · 하역구 (선외에서 넣은 재료가 선내 하역함 6칸으로)
+Delivery	납품소	납품	100	180	PackDelivery	0.3	Self	포장 납품대 · 재료를 넣고 E 2초 홀드로 포장 납품하면 보상 +30%
+Refinery	정제실	정제	100	200	Process	0	Self	고철 3 → 연료 셀 (12초) · 고철 2 → 합금판 (10초)
+RepairBay	수리 베이	수리	100	220	RepairKit	25	Adjacent	수리 키트대 · 고철 1개를 넣으면 붙은 모듈 중 가장 손상된 곳 내구도 +25
+DroneBay	드론 베이	드론	100	220	Drone	12	Self	12초마다 반경 25m 재료 1개 회수 (거치대 3칸)
+Comm	통신실	통신	100	200	Negotiate	20	Global	협상 콘솔 · E 2초 홀드로 가장 급한 주문 제한시간 +20초 (주문당 1회 · 쿨다운 20초)
+Storage	저장고	저장	100	150	Storage	4	Self	재료 4칸 보관 · 다음 항해로 이월
+FireControl	방재실	방재	100	180	EscalateInterval	20	Adjacent	붙은 모듈 사고 악화 간격 20초 · 원격 진압 콘솔 (붙은 모듈 화재·누출을 E 5초 홀드로 해결)
+Observatory	관측실	관측	100	200	Scan	45	Global	스캐너 · E 3초 홀드로 구 경계에 크리스탈 3개 탐지 (쿨다운 45초) · 사고 10초 전 예고
+Stabilizer	안정화실	안정	100	250	Process	0	Self	합성기 · 연료 셀 1 + 크리스탈 1 → 안정화 셀 (20초) · 코어에 넣으면 안정도 +12%
+Fabricator	조립실	조립	100	240	Process	0	Self	합금판 1 + 크리스탈 1 → 정밀 부품 (15초)

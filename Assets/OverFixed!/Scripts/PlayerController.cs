@@ -15,7 +15,7 @@ namespace OverFixed
     // 선외 입력 : Shift(제트 추진)
 
     // 상호작용 : 물건 집기 + 수리하기 + 터미널 조작
-
+    
     public enum MoveState
     {
         Interior,   // 선내
@@ -27,14 +27,14 @@ namespace OverFixed
 
         [Header("설정값 (playerConfig로 밸런스 조정)")]
         [SerializeField] private PlayerConfig playerConfig;
-
+        
         [Header("애니메이터")]
         [SerializeField] private Animator animator;
 
         [Header("시작 이동 상태")]
         [SerializeField] private MoveState startMoveState = MoveState.Interior;
 
-        public MoveState MoveState { get; private set; }
+        public MoveState MoveState;
 
         // 제트 추진 해금 여부. 정비 상점이 생기면 그쪽에서 켠다
         public bool IsJetUnlocked { get; set; }
@@ -51,6 +51,24 @@ namespace OverFixed
         private float verticalLookAngle;
         private float moveX, moveZ; // 키를 따라 -1 ~ 1 사이를 부드럽게 움직이는 로직에 사용되는 축 값
 
+        #region 디버그용 코드
+
+        private void Debug_TurnMoveState()
+        {
+            // 이동 상태 변경
+            if (SimpleInput.GetKeyDown(Key.Digit1))
+            {
+                if (MoveState == MoveState.Interior) MoveState = MoveState.Exterior;
+                else MoveState = MoveState.Interior;
+            }
+
+            if (SimpleInput.GetKeyDown(Key.Digit2)) IsJetUnlocked = !IsJetUnlocked; 
+            if (SimpleInput.GetKeyDown(Key.Digit3)) ;
+            if (SimpleInput.GetKeyDown(Key.Digit2)) return;
+        }
+
+        #endregion
+        
         #region Unity Methods
 
         private void Awake()
@@ -67,6 +85,8 @@ namespace OverFixed
             else UpdateExteriorMovement();
             UpdateCameraRotation();
             UpdateInteraction();
+            
+            Debug_TurnMoveState(); 
         }
         #endregion
 

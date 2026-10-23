@@ -13,10 +13,15 @@ namespace OverFixed
         private Vector3 holdOffset = new Vector3(0f, 0f, 2f); 
         
         public GameObject Item { get; private set; }
+        
+        private PlayerController playerController;
 
+        private bool IsJetUnlocked = false;
+        
         private void Awake() 
         {
-            if (interactionCube == null) interactionCube = GetComponentInChildren<InteractionCube>();
+            interactionCube = GetComponentInChildren<InteractionCube>();
+            playerController = GetComponent<PlayerController>();
         }
 
         private void OnEnable()
@@ -24,6 +29,9 @@ namespace OverFixed
             interactionCube.InteractItem += TakeItem;
             interactionCube.InteractTerminal += AccessTerminal;
             interactionCube.InteractPanel += FixPanel;
+            interactionCube.InteractCabinet += OpenCabinet;
+            interactionCube.InteractionBox += OpenBox;
+            interactionCube.InteractionAirLock += OpenAirLock;
         }
 
         private void OnDisable()
@@ -31,6 +39,22 @@ namespace OverFixed
             interactionCube.InteractItem -= TakeItem;
             interactionCube.InteractTerminal -= AccessTerminal;
             interactionCube.InteractPanel -= FixPanel;
+            interactionCube.InteractCabinet -= OpenCabinet;
+            interactionCube.InteractionBox -= OpenBox;
+            interactionCube.InteractionAirLock -= OpenAirLock;
+        }
+
+        private void OpenAirLock(GameObject airlock)
+        {
+            // 선내면 선외로, 선외면 선내로 상태 변경
+            if (playerController.MoveState == MoveState.Interior) 
+                playerController.MoveState = MoveState.Exterior;
+            else playerController.MoveState = MoveState.Interior;
+        }
+
+        private void OpenBox(GameObject box)
+        {
+            Item = null;
         }
         
         private void TakeItem(GameObject item)
@@ -40,8 +64,8 @@ namespace OverFixed
             item.GetComponent<Collider>().enabled = false;
             if (item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = true;
             item.transform.SetParent(transform);    // 로컬 플레이어의 자식으로 아이템이 들어간다
-            item.transform.localPosition = holdOffset; // 위치는 
-            item.transform.localRotation = Quaternion.identity;
+            item.transform.localPosition = holdOffset; // 위치는 holdOffset만큼 떨어진 위치
+            item.transform.localRotation = Quaternion.identity; // 회전은 고정
 
             // 줍은 아이템을 플레이어의 아이템으로 등록
             Item = item;
@@ -60,16 +84,22 @@ namespace OverFixed
             Item = null;
         }
 
+        [SerializeField] private TerminalManager TerminalManager;
+        
         // 터미널과 상호작용
         private void AccessTerminal(GameObject terminal) 
         {
-            TerminalManager.Instance.AccessTerminal();
+            TerminalManager.AccessTerminal();
         }
 
         // 패널 조작하기 
         private void FixPanel(GameObject panel) 
         {
             
+        }
+        
+        private void OpenCabinet(GameObject cabinet)
+        {
         }
     }
 }

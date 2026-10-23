@@ -2,89 +2,60 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 데드 스페이스식 근접 숄더뷰
-    // 플레이어(좌우 회전) → 카메라 피벗(상하 회전, 오른쪽 어깨) → 카메라(피벗 뒤)
-    // 벽이 가리면 카메라를 어깨 쪽으로 바로 당기고, 풀리면 천천히 돌아간다
+    // 숄더뷰 카메라
+    // 플레이어(좌우 회전, PlayerController) → 카메라 피벗(상하 회전) → 카메라(피벗의 자식)
+    // 변경!!! 머리는 화면 중앙이 가리키는 지점을 바라본다 (3인칭 FPS식 조준). 머리 아래 상호작용 박스도 같이 화면 중앙을 향한다
     [RequireComponent(typeof(PlayerController))]
     public class ShoulderCamera : MonoBehaviour
     {
-        [Header("설정값 (playerConfig로 밸런스 조정)")]
-        [SerializeField] private PlayerConfig playerConfig;
-
-        [Header("카메라 (피벗은 플레이어의 자식, 카메라는 피벗의 자식)")]
+        [Header("카메라 (피벗은 플레이어의 자식, 카메라는 피벗의 자식. 위치는 씬에서 조절)")]
         [SerializeField] private Transform cameraPivot;
-        [SerializeField] private Camera playerCamera;
+        [SerializeField] private Transform playerHead;
+        [SerializeField] private Camera playerCamera; // 변경!!! 화면 중앙 레이를 쏘는 카메라
+
+        [Header("조준")]
+        [SerializeField] private float maxAimDistance = 30f; // 변경!!! 화면 중앙 레이가 아무것도 맞히지 못하면 이 거리의 점을 바라본다
 
         // 아래는 내부변수들
         private PlayerController playerController;
-        private Renderer[] playerRenderers;                         // 숨길 수 있는 캐릭터 렌더러 (처음부터 켜져 있던 것만)
-        private readonly RaycastHit[] hitBuffer = new RaycastHit[16];
-        private float currentShoulderOffset;                        // 벽에 밀려 줄어든 지금의 어깨 오프셋
-        private float currentDistance;                              // 벽에 밀려 줄어든 지금의 카메라 거리
-        private bool isPlayerHidden;
 
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
-            playerRenderers = System.Array.FindAll(GetComponentsInChildren<Renderer>(), playerRenderer => playerRenderer.enabled);
-            currentShoulderOffset = playerConfig.ShoulderOffset;
-            currentDistance = playerConfig.CameraDistance;
         }
 
         // 플레이어 이동과 회전(Update)이 끝난 뒤에 카메라를 맞춰야 떨리지 않는다
         private void LateUpdate()
         {
-            playerCamera.fieldOfView = playerConfig.CameraFieldOfView;
+            // 피벗을 중심으로 상하 회전. 카메라는 피벗의 자식이라 에디터에서 둔 자리 그대로 같이 돈다
             cameraPivot.localRotation = Quaternion.Euler(playerController.VerticalLookAngle, 0f, 0f);
 
-            // 1. 머리 → 오른쪽 어깨 : 오른쪽에 벽이 있으면 어깨 오프셋을 줄인다
-            Vector3 headPosition = transform.TransformPoint(0f, playerConfig.PivotHeight, 0f);
-            float shoulderLimit = CastLimit(headPosition, transform.right, playerConfig.ShoulderOffset);
-            currentShoulderOffset = FollowLimit(currentShoulderOffset, shoulderLimit);
-            cameraPivot.localPosition = new Vector3(currentShoulderOffset, playerConfig.PivotHeight, 0f);
-
-            // 2. 어깨 → 카메라 : 뒤가 막히면 카메라 거리를 줄인다
-            float distanceLimit = CastLimit(cameraPivot.position, -cameraPivot.forward, playerConfig.CameraDistance);
-            currentDistance = FollowLimit(currentDistance, distanceLimit);
-            playerCamera.transform.localPosition = new Vector3(0f, 0f, -currentDistance);
-            playerCamera.transform.localRotation = Quaternion.identity;
-
-            // 3. 카메라가 머리에 너무 붙으면 캐릭터를 숨긴다
-            bool isTooClose = Vector3.Distance(playerCamera.transform.position, headPosition) < playerConfig.HidePlayerDistance;
-            if (isTooClose != isPlayerHidden) SetPlayerHidden(isTooClose);
+            // 변경!!! 머리 = 피벗과 같은 각도 → 화면 중앙이 가리키는 지점을 바라보게
+            Vector3 aimPoint = FindAimPoint();
+            Vector3 lookDirection = aimPoint - playerHead.position;
+            if (lookDirection.sqrMagnitude > 0.0001f) playerHead.rotation = Quaternion.LookRotation(lookDirection, transform.up);
         }
 
-        // origin에서 direction으로 maxDistance까지 구를 쏴서, 벽에 막히기 전까지 갈 수 있는 거리
-        // 플레이어 자신(손에 든 물건 포함)과 트리거는 벽으로 치지 않는다
-        private float CastLimit(Vector3 origin, Vector3 direction, float maxDistance)
+        // 화면 중앙에서 앞으로 레이를 쏴서 처음 맞는 지점. 없으면 maxAimDistance 거리의 점
+        // 플레이어 자신(손에 든 물건 포함), 트리거, 카메라와 머리 사이에 있는 것은 건너뛴다
+        private Vector3 FindAimPoint()
         {
-            int hitCount = Physics.SphereCastNonAlloc(origin, playerConfig.CameraRadius, direction, hitBuffer, maxDistance,
-                playerConfig.CameraCollisionMask, QueryTriggerInteraction.Ignore);
+            Ray centerRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            float headDistance = Vector3.Dot(playerHead.position - centerRay.origin, centerRay.direction);
 
-            float limit = maxDistance;
-            for (int index = 0; index < hitCount; index++)
+            Vector3 aimPoint = centerRay.GetPoint(maxAimDistance);
+            float nearestDistance = maxAimDistance;
+            foreach (RaycastHit hit in Physics.RaycastAll(centerRay, maxAimDistance, Physics.AllLayers, QueryTriggerInteraction.Ignore))
             {
-                RaycastHit hit = hitBuffer[index];
                 if (hit.collider.transform.IsChildOf(transform)) continue;
-                if (hit.distance < limit) limit = hit.distance;
+                if (hit.distance <= headDistance) continue;
+                if (hit.distance < nearestDistance)
+                {
+                    nearestDistance = hit.distance;
+                    aimPoint = hit.point;
+                }
             }
-            return limit;
-        }
-
-        // 막히면 그 프레임에 바로 당기고, 풀리면 CameraTweenSpeed로 천천히 돌아간다
-        private float FollowLimit(float current, float limit)
-        {
-            if (limit < current) return limit;
-            return Mathf.Lerp(current, limit, playerConfig.CameraTweenSpeed * Time.deltaTime);
-        }
-
-        private void SetPlayerHidden(bool isHidden)
-        {
-            isPlayerHidden = isHidden;
-            foreach (Renderer playerRenderer in playerRenderers)
-            {
-                if (playerRenderer != null) playerRenderer.enabled = isHidden == false;
-            }
+            return aimPoint;
         }
     }
 }

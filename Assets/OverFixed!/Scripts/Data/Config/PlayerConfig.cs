@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 플레이어 (기획서 6.2) + PlayerController에 있던 조작 수치
     [CreateAssetMenu(menuName = "OverFixed/PlayerConfig")]
     public class PlayerConfig : ScriptableObject
     {
@@ -29,17 +28,5 @@ namespace OverFixed
         public float MouseAxisScale = 0.1f;         // 마우스 이동량(픽셀)을 회전 각도로 줄이는 기본 배율 (개발자 조절값)
         public float InteriorMaxLookAngle = 60f;    // 선내 : 마우스 상하 시야 한계 (도)
         public float ExteriorMaxLookAngle = 80f;    // 선외 : 마우스 상하 시야 한계 (도)
-
-        [Header("숄더뷰 (데드 스페이스식)")]
-        public float PivotHeight = 0.6f;            // 플레이어 중심에서 어깨(카메라 피벗)까지의 높이
-        public float ShoulderOffset = 0.55f;        // 어깨 피벗을 오른쪽으로 미는 거리. 캐릭터가 화면 왼쪽에 서게 된다
-        public float CameraDistance = 1.5f;         // 피벗에서 카메라까지의 거리
-        public float CameraFieldOfView = 65f;
-        public float CameraRadius = 0.2f;           // 벽 검사용 구의 반지름. 카메라가 벽에 파묻히지 않게 하는 여유
-        public LayerMask CameraCollisionMask = ~0;  // 카메라를 당기는 대상 레이어 (플레이어 자신과 트리거는 항상 제외)
-        public float HidePlayerDistance = 0.5f;     // 카메라가 머리에 이만큼 붙으면 캐릭터를 숨긴다
-
-        [Header("플레이 조정")]
-        public float CameraTweenSpeed = 3f;         // 벽에서 풀린 카메라가 제자리로 돌아가는 속도 (초당 비율)
     }
 }

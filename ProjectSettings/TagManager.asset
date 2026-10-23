@@ -7,6 +7,9 @@ TagManager:
   - Item
   - Terminal
   - Panel
+  - Cabinet
+  - Box
+  - AirLock
   layers:
   - Default
   - TransparentFX

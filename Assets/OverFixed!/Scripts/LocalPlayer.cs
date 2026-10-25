@@ -1,6 +1,4 @@
-﻿using System;
-using Unity.Cinemachine;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace OverFixed
 {
@@ -16,8 +14,6 @@ namespace OverFixed
         
         private PlayerController playerController;
 
-        private bool IsJetUnlocked = false;
-        
         private void Awake() 
         {
             interactionCube = GetComponentInChildren<InteractionCube>();
@@ -46,7 +42,7 @@ namespace OverFixed
 
         private void OpenAirLock(GameObject airlock)
         {
-            // 선내면 선외로, 선외면 선내로 상태 변경
+            // 선내면 선외로, 선외면 선내로 전환
             if (playerController.MoveState == MoveState.Interior) 
                 playerController.MoveState = MoveState.Exterior;
             else playerController.MoveState = MoveState.Interior;
@@ -54,7 +50,6 @@ namespace OverFixed
 
         private void OpenBox(GameObject box)
         {
-            Item = null;
         }
         
         private void TakeItem(GameObject item)
@@ -84,12 +79,12 @@ namespace OverFixed
             Item = null;
         }
 
-        [SerializeField] private TerminalManager TerminalManager;
-        
+        [SerializeField] private TerminalManager terminalManager;
+
         // 터미널과 상호작용
-        private void AccessTerminal(GameObject terminal) 
+        private void AccessTerminal(GameObject terminal)
         {
-            TerminalManager.AccessTerminal();
+            terminalManager.AccessTerminal();
         }
 
         // 패널 조작하기 

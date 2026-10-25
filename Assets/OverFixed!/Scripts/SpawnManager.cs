@@ -12,8 +12,8 @@ namespace OverFixed
     
     public class SpawnManager : SingletonBase<SpawnManager>
     {
-        private Transform CoreModuleTransform;
-        private Transform[] ModulesTransform;
+        private Transform coreModuleTransform;
+        private Transform[] moduleTransformList;
         
         private void SafetyZone()
         {

@@ -1,4 +1,3 @@
-using System;
 using Study.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -51,21 +50,22 @@ namespace OverFixed
         private float verticalLookAngle;
         private float moveX, moveZ; // 키를 따라 -1 ~ 1 사이를 부드럽게 움직이는 로직에 사용되는 축 값
 
-        #region 디버그용 코드
+        #region 디버그용 코드 (에디터 전용, 배포 빌드에서는 빠진다)
 
+#if UNITY_EDITOR
         private void Debug_TurnMoveState()
         {
-            // 이동 상태 변경
+            // 선내/선외 전환
             if (SimpleInput.GetKeyDown(Key.Digit1))
             {
                 if (MoveState == MoveState.Interior) MoveState = MoveState.Exterior;
                 else MoveState = MoveState.Interior;
             }
 
-            if (SimpleInput.GetKeyDown(Key.Digit2)) IsJetUnlocked = !IsJetUnlocked; 
-            if (SimpleInput.GetKeyDown(Key.Digit3)) ;
-            if (SimpleInput.GetKeyDown(Key.Digit2)) return;
+            // 제트 추진 해금 전환
+            if (SimpleInput.GetKeyDown(Key.Digit2)) IsJetUnlocked = IsJetUnlocked == false;
         }
+#endif
 
         #endregion
         
@@ -85,8 +85,10 @@ namespace OverFixed
             else UpdateExteriorMovement();
             UpdateCameraRotation();
             UpdateInteraction();
-            
-            Debug_TurnMoveState(); 
+
+#if UNITY_EDITOR
+            Debug_TurnMoveState();
+#endif
         }
         #endregion
 

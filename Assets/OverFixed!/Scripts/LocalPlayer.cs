@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace OverFixed
 {
@@ -43,9 +44,16 @@ namespace OverFixed
         private void OpenAirLock(GameObject airlock)
         {
             // 선내면 선외로, 선외면 선내로 전환
-            if (playerController.MoveState == MoveState.Interior) 
+            if (playerController.MoveState == MoveState.Interior)
+            {
                 playerController.MoveState = MoveState.Exterior;
-            else playerController.MoveState = MoveState.Interior;
+                airlock.GetComponent<AirLock>().ToExit();
+            }
+            else
+            {
+                playerController.MoveState = MoveState.Interior;
+                airlock.GetComponent<AirLock>().ToEntry();
+            }
         }
 
         private void OpenBox(GameObject box)

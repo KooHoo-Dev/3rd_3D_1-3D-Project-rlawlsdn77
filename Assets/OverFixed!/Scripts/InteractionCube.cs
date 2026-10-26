@@ -41,7 +41,7 @@ namespace OverFixed
             else if (target.CompareTag(AirLock)) InteractionAirLock?.Invoke(target);
         }
 
-        private static bool IsTarget(GameObject target)
+        private static bool IsCompareTag(GameObject target)
         {
             return target.CompareTag(Item) ||
                    target.CompareTag(Terminal) ||
@@ -65,7 +65,7 @@ namespace OverFixed
             foreach (Collider hit in hitList)
             {
                 GameObject target = hit.gameObject;
-                if (IsTarget(target) == false) continue;
+                if (IsCompareTag(target) == false) continue;
 
                 float distance = Vector3.Distance(worldCenter, target.transform.position); // 범위 중심 기준 거리
                 if (distance < nearestDistance)

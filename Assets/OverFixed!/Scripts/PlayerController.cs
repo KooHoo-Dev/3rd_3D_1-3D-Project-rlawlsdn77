@@ -25,7 +25,7 @@ namespace OverFixed
     {
 
         [Header("설정값 (playerConfig로 밸런스 조정)")]
-        [SerializeField] private PlayerConfig playerConfig;
+        [SerializeField] private PlayerControlConfig playerControlConfig;
         
         [Header("애니메이터")]
         [SerializeField] private Animator animator;
@@ -114,13 +114,13 @@ namespace OverFixed
         private void UpdateInteriorMovement()
         {
             // 이동속도 결정
-            float speed = SimpleInput.GetKey(Key.LeftShift) ? playerConfig.RunSpeed : playerConfig.MoveSpeed;
+            float speed = SimpleInput.GetKey(Key.LeftShift) ? playerControlConfig.RunSpeed : playerControlConfig.MoveSpeed;
 
             // 이동 연산에 사용할 방향의 축값을 가져옵니다. 가져온 데이터는 한축은
             // -1, 0, 1 의 3가지중 하나가 반환됩니다
             Vector2 inputRaw = SimpleInput.GetMoveAxisRaw();
-            moveX = SmoothAxis(moveX, inputRaw.x, playerConfig.AxisSpeed);
-            moveZ = SmoothAxis(moveZ, inputRaw.y, playerConfig.AxisSpeed);
+            moveX = SmoothAxis(moveX, inputRaw.x, playerControlConfig.AxisSpeed);
+            moveZ = SmoothAxis(moveZ, inputRaw.y, playerControlConfig.AxisSpeed);
 
             // 현재 플레이어의 방향에 맞춰서 moveVector를 계산합니다.
             Vector3 moveVector = (transform.right * moveX) + (transform.forward * moveZ);
@@ -129,7 +129,7 @@ namespace OverFixed
 
             // 선내는 상하 입력이 없고, 중력으로 바닥에 붙어 있는다
             if (controller.isGrounded && fallSpeed < 0f) fallSpeed = 0f;
-            fallSpeed -= playerConfig.Gravity * Time.deltaTime;
+            fallSpeed -= playerControlConfig.Gravity * Time.deltaTime;
             controller.Move(Vector3.up * (fallSpeed * Time.deltaTime));
         }
 
@@ -146,12 +146,12 @@ namespace OverFixed
 
             // 입력은 속도에 더해지고(가속), 속도는 매 프레임 조금씩 줄어든다(감속).
             // 그래서 입력을 떼도 바로 멈추지 않고 미끄러지다 멈춘다
-            spaceVelocity += thrustVector * (playerConfig.SpaceAccel * Time.deltaTime);
-            spaceVelocity *= Mathf.Exp(-playerConfig.SpaceDrag * Time.deltaTime);
+            spaceVelocity += thrustVector * (playerControlConfig.SpaceAccel * Time.deltaTime);
+            spaceVelocity *= Mathf.Exp(-playerControlConfig.SpaceDrag * Time.deltaTime);
 
             // 최고속도 : 제트 추진을 해금했고 Shift를 누르는 동안만 JetSpeed
             bool isJetting = IsJetUnlocked && SimpleInput.GetKey(Key.LeftShift);
-            float maxSpeed = isJetting ? playerConfig.JetSpeed : playerConfig.SpaceSpeed;
+            float maxSpeed = isJetting ? playerControlConfig.JetSpeed : playerControlConfig.SpaceSpeed;
             spaceVelocity = Vector3.ClampMagnitude(spaceVelocity, maxSpeed);
 
             controller.Move(spaceVelocity * Time.deltaTime);
@@ -178,9 +178,9 @@ namespace OverFixed
         {
             // 현재 프레임의 마우스 이동량을 가져옵니다.
             // MouseAxisScale을 곱해서 픽셀로 돌려받은 값을 줄여줍니다.
-            Vector2 delta = SimpleInput.GetMouseDelta() * playerConfig.MouseAxisScale;
-            float mouseX = delta.x * playerConfig.MouseSensitivity;
-            float mouseY = delta.y * playerConfig.MouseSensitivity;
+            Vector2 delta = SimpleInput.GetMouseDelta() * playerControlConfig.MouseAxisScale;
+            float mouseX = delta.x * playerControlConfig.MouseSensitivity;
+            float mouseY = delta.y * playerControlConfig.MouseSensitivity;
 
             Quaternion yawRotation = Quaternion.Euler(0, mouseX, 0);
             // 이것도 되겠죠?
@@ -188,7 +188,7 @@ namespace OverFixed
             transform.rotation *= yawRotation; // y축은 내가 돌아갑니다. 나는 월드 입니다
             
             // 선외는 위아래로 날아다니므로 선내보다 넓게 본다
-            float maxLookAngle = MoveState == MoveState.Interior ? playerConfig.InteriorMaxLookAngle : playerConfig.ExteriorMaxLookAngle;
+            float maxLookAngle = MoveState == MoveState.Interior ? playerControlConfig.InteriorMaxLookAngle : playerControlConfig.ExteriorMaxLookAngle;
             verticalLookAngle -= mouseY;
             verticalLookAngle = Mathf.Clamp(verticalLookAngle, -maxLookAngle, maxLookAngle);
         }

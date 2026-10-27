@@ -109,24 +109,12 @@ PrefabInstance:
       value: SM_Iron_Plate
       objectReference: {fileID: 0}
     - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.7555416
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.7555416
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.7555416
-      objectReference: {fileID: 0}
-    - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.030721977
+      value: -0.028099
       objectReference: {fileID: 0}
     - target: {fileID: 8799529842601667102, guid: c3e777fada1a5624ca81842a1829b660, type: 3}
       propertyPath: m_LocalPosition.z

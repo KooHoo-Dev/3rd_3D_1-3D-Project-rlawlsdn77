@@ -1,15 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 터미널 화면 열고 닫기
-    // 화면 안의 탭 전환은 UITabGroup이 맡는다. 이 스크립트는 탭 버튼을 건드리지 않는다
-    public class TerminalManager : MonoBehaviour
+    public class Terminal : MonoBehaviour
     {
         [SerializeField] private GameObject terminalPanel;  // 켜고 끄는 터미널 화면
         [SerializeField] private Button closeButton;
-
+        
+        [SerializeField] private List<GameObject> Items;
+        
+        [SerializeField] private OrderConfig orderConfig;
+        
         // 열림 여부는 화면이 켜져 있는지로 판단한다 (따로 변수를 두면 다른 곳에서 화면을 끌 때 어긋난다)
         public bool IsTerminalOpen => terminalPanel.activeSelf;
 
@@ -28,5 +32,19 @@ namespace OverFixed
         {
             terminalPanel.SetActive(false);
         }
+
+        public void SubmitItem(GameObject item)
+        {
+            Debug.Log($"{item.name} 을 제출하였습니다.");
+            
+            
+        }
+
+        public void CheckQuestItem(GameObject item)
+        {
+            
+        }
     }
+    
+    
 }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c06bb32a41d85ce48a44b5e2fdfe2c5b, type: 3}
-  m_Name: PlayerConfig
+  m_Name: PlayerControlConfig
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.PlayerConfig
   MoveSpeed: 4
   RunSpeed: 8

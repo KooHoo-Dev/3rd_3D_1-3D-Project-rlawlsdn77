@@ -1,0 +1,14 @@
+﻿OrderID	RequireItems	TimeLimit	Reward	RequireModule
+O01	Scrap:1	60	30	
+O02	Scrap:2	70	50	
+O03	Scrap:3	80	70	
+O04	Fuel:1	70	55	
+O05	Fuel:2	85	95	
+O06	Crystal:1	80	80	
+O07	Scrap:1|Fuel:1	80	75	
+O08	Scrap:2|Crystal:1	90	110	
+O09	Fuel:1|Crystal:1	90	120	
+O10	Alloy:1	90	85	Refinery
+O11	Alloy:1|Fuel:1	110	150	Refinery
+O12	Part:1	120	190	Refinery;Fabricator
+O13	Part:1|Alloy:1	140	270	Refinery;Fabricator

@@ -26,5 +26,7 @@ namespace OverFixed
                 current.Button.onClick.AddListener(() => current.Target.SetActive(current.IsActive));
             }
         }
+        
+        
     }
 }

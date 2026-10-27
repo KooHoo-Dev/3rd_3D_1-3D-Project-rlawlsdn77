@@ -10,6 +10,7 @@ namespace OverFixed
         private const string TsvFolder = "Tsv/";
 
         private static Dictionary<ItemType, ItemRow> itemTable;
+        private static List<OrderRow> orderTable;
 
         // 재료 한 종류의 행. 테이블에 없는 재료면 예외가 나서 TSV 누락을 바로 알 수 있다
         public static ItemRow GetItem(ItemType itemId)
@@ -32,6 +33,13 @@ namespace OverFixed
             {
                 itemTable[itemRow.ItemID] = itemRow;
             }
+        }
+
+        // 주문 테이블 전체 (주문을 뽑을 때 후보 목록으로 쓴다)
+        public static IReadOnlyList<OrderRow> GetOrderRows()
+        {
+            if (orderTable == null) orderTable = TsvParser.ParseRows(LoadTsv("OrderTable"), OrderRow.FromCells);
+            return orderTable;
         }
 
         private static string LoadTsv(string tableName)

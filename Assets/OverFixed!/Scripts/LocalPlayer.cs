@@ -14,11 +14,13 @@ namespace OverFixed
         public GameObject Item { get; private set; }
         
         private PlayerController playerController;
+        private CharacterController characterController; 
 
-        private void Awake() 
+        private void Awake()
         {
             interactionCube = GetComponentInChildren<InteractionCube>();
             playerController = GetComponent<PlayerController>();
+            characterController = GetComponent<CharacterController>(); 
         }
 
         private void OnEnable()
@@ -42,17 +44,17 @@ namespace OverFixed
         }
 
         private void OpenAirLock(GameObject airlock)
-        {
-            // 선내면 선외로, 선외면 선내로 전환
+        {   
+            // 선내면 선외로, 선외면 선내로 이동
             if (playerController.MoveState == MoveState.Interior)
             {
-                playerController.MoveState = MoveState.Exterior;
-                airlock.GetComponent<AirLock>().ToExit();
+                playerController.SetMoveState(MoveState.Exterior);
+                airlock.GetComponent<AirLock>().ToExit(characterController);
             }
             else
             {
-                playerController.MoveState = MoveState.Interior;
-                airlock.GetComponent<AirLock>().ToEntry();
+                playerController.SetMoveState(MoveState.Interior);
+                airlock.GetComponent<AirLock>().ToEntry(characterController);
             }
         }
 
@@ -63,12 +65,16 @@ namespace OverFixed
         private void TakeItem(GameObject item)
         {
             if (Item != null) return;
+            
+            SpawnManager.Instance.StopItemMove(item);
 
             item.GetComponent<Collider>().enabled = false;
             if (item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = true;
             item.transform.SetParent(transform);    // 로컬 플레이어의 자식으로 아이템이 들어간다
             item.transform.localPosition = holdOffset; // 위치는 holdOffset만큼 떨어진 위치
             item.transform.localRotation = Quaternion.identity; // 회전은 고정
+            
+            if (item.TryGetComponent(out ItemObject itemObject)) item.transform.localScale = itemObject.OriginalScale;
 
             // 줍은 아이템을 플레이어의 아이템으로 등록
             Item = item;
@@ -81,18 +87,20 @@ namespace OverFixed
             Item.transform.SetParent(null);
             Item.transform.position = transform.position + transform.forward * holdOffset.z;
             Item.GetComponent<Collider>().enabled = true;
-            if (Item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = false;
+            if (Item.TryGetComponent(out Rigidbody itemBody))
+            {
+                // 선외에서는 아이템을 잡고 놓으면 놓은 자리에 떠 있게 한다
+                itemBody.isKinematic = playerController.MoveState == MoveState.Exterior;
+            }
 
             // 플레이어의 아이템을 비움
             Item = null;
         }
 
-        [SerializeField] private TerminalManager terminalManager;
-
         // 터미널과 상호작용
         private void AccessTerminal(GameObject terminal)
-        {
-            terminalManager.AccessTerminal();
+        { 
+            terminal.GetComponent<Terminal>().AccessTerminal();
         }
 
         // 패널 조작하기 
@@ -103,6 +111,11 @@ namespace OverFixed
         
         private void OpenCabinet(GameObject cabinet)
         {
+            // 1. 플레이어가 아이템을 들고 있을 시 그 아이템을 보유 아이템 목록에 넣는다
+            // 2. 플레이어가 아이템을 들고 있지 않을 시 보유 아이템 목록 UI를 띄운다. (아이템 클릭 시 그 아이템을 손에 들게 됨)
+            // 3. 보유 아이템 목록의 아이템은 터미널의 제출 아이템과 연동되지 않는다 (터미널 제출 아이템은 직접 손으로 들고 가야함)
+            // 4. 보유 아이템 목록은 다음 행성 이동시에도 아이템이 사라지지 않고 남아있다.
+            cabinet.GetComponent<Cabinet>().OpenCabinet();    
         }
     }
 }

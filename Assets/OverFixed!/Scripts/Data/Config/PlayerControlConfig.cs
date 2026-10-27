@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    [CreateAssetMenu(menuName = "OverFixed/PlayerConfig")]
-    public class PlayerConfig : ScriptableObject
+    [CreateAssetMenu(menuName = "OverFixed/PlayerControlConfig")]
+    public class PlayerControlConfig : ScriptableObject
     {
         [Header("선내 이동")]
         public float MoveSpeed = 3f;                // 선내 : 일반 이동속도

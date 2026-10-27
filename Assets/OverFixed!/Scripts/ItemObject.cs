@@ -7,9 +7,16 @@ namespace OverFixed
     public class ItemObject : MonoBehaviour
     {
         [SerializeField] private ItemType itemId;
-
+        
         public ItemType ItemID => itemId;
 
         public ItemRow Row => DataManager.GetItem(itemId);
+        
+        public Vector3 OriginalScale { get; private set; }
+        
+        private void Awake()
+        {
+            OriginalScale = transform.localScale;
+        }
     }
 }

@@ -1,37 +1,37 @@
 using System;
 using Jay;
-using Study.Utilities;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-namespace OverFixed 
+namespace OverFixed
 {
     public class AccountManager : SingletonBase<AccountManager>
     {
-        [Header("Gold")]
+        [Header("크레딧")]
         [SerializeField] private CreditConfig creditConfig;
-        
+
         [SerializeField] private LocalPlayer localPlayer;
-        
-        public int CurrentGold { get; private set; }
+
+        public int CurrentCredit { get; private set; }
+
+        // 보유 크레딧이 바뀌면 바뀐 값을 알린다. HUD가 구독한다
+        public Action<int> CreditChanged;
 
         private void Start()
         {
-            // 첫 골드 지급
-            CurrentGold = creditConfig.StartCredit; 
+            // 첫 크레딧 지급
+            CurrentCredit = creditConfig.StartCredit;
+            CreditChanged?.Invoke(CurrentCredit);
         }
-        
+
         private void GetAccount()
         {
-            Debug.Log(CurrentGold);
+            Debug.Log(CurrentCredit);
         }
-        
-        public void SetAccount(GameObject orderedItem)
+
+        public void AddCredit(int credit)
         {
-            // AccountManager에게 아이템 위임
-            orderedItem.transform.SetParent(transform);
-            orderedItem.SetActive(false);
-            
+            CurrentCredit += credit;
+            CreditChanged?.Invoke(CurrentCredit);
         }
     }
 }

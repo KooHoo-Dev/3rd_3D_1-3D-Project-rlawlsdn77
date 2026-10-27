@@ -33,7 +33,17 @@ namespace OverFixed
         [Header("시작 이동 상태")]
         [SerializeField] private MoveState startMoveState = MoveState.Interior;
 
-        public MoveState MoveState;
+        [Header("선외 활동 구 (지금은 SpawnSphere. 반지름 = 스케일의 절반)")]
+        [SerializeField] private Transform activityArea;
+
+        // 이동 상태는 SetMoveState로만 바꾼다
+        public MoveState MoveState { get; private set; }
+
+        // 이동과 상호작용 입력 잠금 (에어락 감압 중). 마우스 시점은 잠그지 않는다
+        public bool IsControlLocked { get; private set; }
+
+        // 마우스 시점 잠금 (터미널 화면이 열린 동안)
+        public bool IsLookLocked { get; private set; }
 
         // 제트 추진 해금 여부. 정비 상점이 생기면 그쪽에서 켠다
         public bool IsJetUnlocked { get; set; }
@@ -58,8 +68,8 @@ namespace OverFixed
             // 선내/선외 전환
             if (SimpleInput.GetKeyDown(Key.Digit1))
             {
-                if (MoveState == MoveState.Interior) MoveState = MoveState.Exterior;
-                else MoveState = MoveState.Interior;
+                if (MoveState == MoveState.Interior) SetMoveState(MoveState.Exterior);
+                else SetMoveState(MoveState.Interior);
             }
 
             // 제트 추진 해금 전환
@@ -81,10 +91,13 @@ namespace OverFixed
 
         private void Update()
         {
-            if (MoveState == MoveState.Interior) UpdateInteriorMovement();
-            else UpdateExteriorMovement();
-            UpdateCameraRotation();
-            UpdateInteraction();
+            if (IsControlLocked == false)
+            {
+                if (MoveState == MoveState.Interior) UpdateInteriorMovement();
+                else UpdateExteriorMovement();
+            }
+            if (IsLookLocked == false) UpdateCameraRotation();
+            if (IsControlLocked == false) UpdateInteraction();
 
 #if UNITY_EDITOR
             Debug_TurnMoveState();
@@ -100,6 +113,16 @@ namespace OverFixed
             spaceVelocity = Vector3.zero;
             moveX = 0f;
             moveZ = 0f;
+        }
+
+        public void SetControlLock(bool isLocked)
+        {
+            IsControlLocked = isLocked;
+        }
+
+        public void SetLookLock(bool isLocked)
+        {
+            IsLookLocked = isLocked;
         }
 
         private void UpdateInteraction()
@@ -154,7 +177,21 @@ namespace OverFixed
             float maxSpeed = isJetting ? playerControlConfig.JetSpeed : playerControlConfig.SpaceSpeed;
             spaceVelocity = Vector3.ClampMagnitude(spaceVelocity, maxSpeed);
 
+            PushInsideActivityArea();
             controller.Move(spaceVelocity * Time.deltaTime);
+        }
+
+        // 활동 구 경계를 넘으면 바깥으로 가는 속도를 없애고 안쪽으로 밀어낸다 (관성 때문에 부드럽게 되돌아온다)
+        private void PushInsideActivityArea()
+        {
+            Vector3 fromCenter = transform.position - activityArea.position;
+            float activityRadius = activityArea.lossyScale.x * 0.5f;
+            if (fromCenter.magnitude <= activityRadius) return;
+
+            Vector3 outward = fromCenter.normalized;
+            float outwardSpeed = Vector3.Dot(spaceVelocity, outward);
+            if (outwardSpeed > 0f) spaceVelocity -= outward * outwardSpeed;
+            spaceVelocity -= outward * (playerControlConfig.BoundaryPush * Time.deltaTime);
         }
 
         private static float SmoothAxis(float current, float target, float axisSpeed)

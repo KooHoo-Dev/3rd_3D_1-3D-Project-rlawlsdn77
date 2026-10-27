@@ -15,5 +15,7 @@ MonoBehaviour:
   BaseSpawnRate: 1.5
   FlowSpeed: 2.5
   NearBias: 0
+  PoolCount: 40
+  FlowItemScale: 5
   CapsuleSpawnRate: 0.15
   CapsuleReward: 60

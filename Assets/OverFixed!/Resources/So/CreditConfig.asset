@@ -11,6 +11,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ff4095c3a5e441b59489019b56f7da55, type: 3}
   m_Name: CreditConfig
-  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.GoldConfig
-  StartGold: 100
-  MaxGold: 1000
+  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.CreditConfig
+  StartCredit: 100
+  MaxCredit: 1000

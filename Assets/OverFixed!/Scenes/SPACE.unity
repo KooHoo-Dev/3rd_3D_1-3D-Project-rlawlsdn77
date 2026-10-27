@@ -1202,10 +1202,6 @@ MonoBehaviour:
   PooledItems: []
   SpawnSphere: {fileID: 1810052043}
   SafeSphere: {fileID: 1979104287}
-  SpawnEndTick: 0
-  SpawnTick: 0.5
-  MoveItemSpeed: 2
-  ItemMoveDuration: 30
 --- !u!4 &281539983 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4245767077522210, guid: 759b3fac8402ebc4d8a92c5027726606, type: 3}
@@ -1278,6 +1274,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6239254f762f6341a41dd7bf5cf5bc2, type: 3}
+--- !u!224 &301682502 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2437764652790525975, guid: 3a3bad26dd74a4e43a891e9b68e87330, type: 3}
+  m_PrefabInstance: {fileID: 1917470456}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &311594829
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2032,6 +2033,7 @@ Transform:
   - {fileID: 1516303949}
   - {fileID: 281252306}
   - {fileID: 1289509320}
+  - {fileID: 1261738317}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &493037494
@@ -2340,8 +2342,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6862cdf20788400683e5a02cd4b13cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.AirLock
-  EntryTransform: {fileID: 847744732}
-  ExitTransform: {fileID: 1171463085}
+  moduleConfig: {fileID: 11400000, guid: ce42b8a52cdddef40b68826c5f444434, type: 2}
+  entryPoint: {fileID: 1651866990}
+  exitPoint: {fileID: 1181944367}
 --- !u!1 &550621101 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1397939207333730, guid: 43596fbab48914b48ac676ca514d49e1, type: 3}
@@ -4997,7 +5000,7 @@ MonoBehaviour:
   playerControlConfig: {fileID: 11400000, guid: 3cab6dc7abdfe2e479425abfad72f1db, type: 2}
   animator: {fileID: 0}
   startMoveState: 0
-  MoveState: 0
+  activityArea: {fileID: 1810052047}
 --- !u!143 &895448394
 CharacterController:
   m_ObjectHideFlags: 0
@@ -5484,6 +5487,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6239254f762f6341a41dd7bf5cf5bc2, type: 3}
+--- !u!1 &1012132336 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4554690983083407301, guid: 3a3bad26dd74a4e43a891e9b68e87330, type: 3}
+  m_PrefabInstance: {fileID: 1917470456}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1030367982 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4762681160043192, guid: b6239254f762f6341a41dd7bf5cf5bc2, type: 3}
@@ -6959,6 +6967,51 @@ Transform:
   - {fileID: 1991197859}
   m_Father: {fileID: 895448398}
   m_LocalEulerAnglesHint: {x: 24.119, y: 0, z: 0}
+--- !u!1 &1261738316
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1261738317}
+  - component: {fileID: 1261738318}
+  m_Layer: 0
+  m_Name: OrderManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1261738317
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261738316}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3.96669, y: 0, z: -0.39076}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 492650403}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1261738318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261738316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 459c14a1b225d0d4a8e441487f0fc2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.OrderManager
+  orderConfig: {fileID: 11400000, guid: 4f0b6a2d9c3e4e81a7d25b8e6c1f9a03, type: 2}
 --- !u!1001 &1268941377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7809,6 +7862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.TerminalManager
   terminalPanel: {fileID: 368690356}
   closeButton: {fileID: 1701946070}
+  playerController: {fileID: 895448393}
   Items: []
   orderConfig: {fileID: 11400000, guid: 4f0b6a2d9c3e4e81a7d25b8e6c1f9a03, type: 2}
 --- !u!4 &1483062546 stripped
@@ -8798,8 +8852,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6862cdf20788400683e5a02cd4b13cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.AirLock
-  EntryTransform: {fileID: 847744732}
-  ExitTransform: {fileID: 1171463085}
+  moduleConfig: {fileID: 11400000, guid: ce42b8a52cdddef40b68826c5f444434, type: 2}
+  entryPoint: {fileID: 1651866990}
+  exitPoint: {fileID: 1181944367}
 --- !u!1 &1615505449
 GameObject:
   m_ObjectHideFlags: 0
@@ -12069,8 +12124,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8718688887850593235, guid: 3a3bad26dd74a4e43a891e9b68e87330, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1917470458}
   m_SourcePrefab: {fileID: 100100000, guid: 3a3bad26dd74a4e43a891e9b68e87330, type: 3}
+--- !u!1 &1917470457 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8718688887850593235, guid: 3a3bad26dd74a4e43a891e9b68e87330, type: 3}
+  m_PrefabInstance: {fileID: 1917470456}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1917470458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917470457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c9536008bfd0114d9e7785a45b5c60d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.HoldBarUI
+  localPlayer: {fileID: 895448399}
+  holdBar: {fileID: 1012132336}
+  fill: {fileID: 301682502}
 --- !u!4 &1920665416 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 269038842357013567, guid: b497c933fb60bc54e9bcedf2a849101d, type: 3}

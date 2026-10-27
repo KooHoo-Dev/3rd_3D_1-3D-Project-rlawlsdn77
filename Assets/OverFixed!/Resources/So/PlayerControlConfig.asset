@@ -11,15 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c06bb32a41d85ce48a44b5e2fdfe2c5b, type: 3}
   m_Name: PlayerControlConfig
-  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.PlayerConfig
+  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.PlayerControlConfig
   MoveSpeed: 4
   RunSpeed: 8
   Gravity: 9.81
   AxisSpeed: 3
   SpaceSpeed: 5
-  JetSpeed: 100
+  JetSpeed: 10
   SpaceAccel: 20
   SpaceDrag: 1.8
+  BoundaryPush: 15
   CarryCount: 1
   TractorRange: 15
   TractorSpeed: 12

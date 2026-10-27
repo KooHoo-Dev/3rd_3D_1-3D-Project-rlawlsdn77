@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.ModuleConfig
   MaxWidth: 5
   MaxHeight: 5
+  AirlockTime: 1

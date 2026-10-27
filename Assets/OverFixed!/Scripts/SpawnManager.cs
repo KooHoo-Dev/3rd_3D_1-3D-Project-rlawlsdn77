@@ -1,13 +1,6 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using Jay;
-using Study.Utilities;
-// 변경!!! using UnityEditor 삭제 (에디터 전용 어셈블리라 게임 빌드 시 에러)
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
-using Random = UnityEngine.Random;
 
 namespace OverFixed
 {
@@ -47,16 +40,8 @@ namespace OverFixed
         private float SpawnSphereRadius;
         private float SafeSphereRadius;
 
-        private int PoolCount = 30;
-
-        [SerializeField] private float SpawnEndTick  = 0f;
-        [SerializeField] private float SpawnTick     = 0.5f;
-        [SerializeField] private float MoveItemSpeed = 2f;
-
-        [SerializeField] private float ItemMoveDuration = 30f;
-        
-        // 오브젝트 크기 변경 함수 (디버깅용 가시성 확보)
-        private int ItemLocalScale = 5;
+        // 마지막 생성 뒤 지난 시간. 생성 간격(1 / BaseSpawnRate)을 넘으면 하나 생성한다
+        private float spawnTimer;
 
         // Items 배열과 같은 순서의 생성 가중치 (ItemTable의 SpawnWeight)
         private float[] itemSpawnWeights;
@@ -67,7 +52,7 @@ namespace OverFixed
             SpawnSphereRadius = SpawnSphere.transform.lossyScale.x * 0.5f;
             SafeSphereRadius = SafeSphere.transform.lossyScale.x * 0.5f;
 
-            PooledItems = new GameObject[Items.Length * PoolCount];
+            PooledItems = new GameObject[Items.Length * spawnConfig.PoolCount];
             Pooling();
             
             itemSpawnWeights = new float[Items.Length];
@@ -84,15 +69,15 @@ namespace OverFixed
         {
             for (int i = 0; i < Items.Length; i++)
             {
-                for (int j = 0; j < PoolCount; j++)
+                for (int j = 0; j < spawnConfig.PoolCount; j++)
                 {
                     GameObject SpawnItem = Instantiate(Items[i], transform);
-                    
+
                     SpawnItem.SetActive(false);
                     SpawnItem.GetComponent<Rigidbody>().isKinematic = true;
-                    SpawnItem.transform.localScale = Vector3.one * ItemLocalScale;
-                    
-                    PooledItems[i * PoolCount + j] = SpawnItem;
+                    SpawnItem.transform.localScale = Vector3.one * spawnConfig.FlowItemScale;
+
+                    PooledItems[i * spawnConfig.PoolCount + j] = SpawnItem;
                 }
             }
         }
@@ -116,9 +101,9 @@ namespace OverFixed
         // itemIndex 종류의 꺼진 아이템. 그 종류가 모두 켜져 있으면 null
         private GameObject GetInactiveItem(int itemIndex)
         {
-            for (int j = 0; j < PoolCount; j++)
+            for (int j = 0; j < spawnConfig.PoolCount; j++)
             {
-                GameObject item = PooledItems[itemIndex * PoolCount + j];
+                GameObject item = PooledItems[itemIndex * spawnConfig.PoolCount + j];
                 // 사용중이지 않으면 가져옴
                 if (item.activeSelf == false) return item;
             }
@@ -131,7 +116,7 @@ namespace OverFixed
         {
             item.transform.DOKill();
             item.transform.SetParent(transform);
-            item.transform.localScale = Vector3.one * ItemLocalScale;
+            item.transform.localScale = Vector3.one * spawnConfig.FlowItemScale;
             item.GetComponent<Collider>().enabled = true;
 
             Rigidbody itemBody = item.GetComponent<Rigidbody>();
@@ -156,30 +141,39 @@ namespace OverFixed
         // 근데 바닥에 떨어뜨린 아이템을 다시 주울 때는?
         // 그건 그냥 기존 TakeItem을 쓰면 될듯
         // 그리고 LocalPlayer가 아이템의 kinematic이나 collider을 직접 조정하는게 의존성 부분에서 맞는 디자인인지 모르겠음
-        
-        // LocalPlayer의 TakeItem 시 Collider / RigidBody 상태 변경 로직을 위임할 스크립트(오브젝트) => GameManager?
 
+        // 아이템을 잡을 때 호출. 풀 아이템이면 풀로 되돌리고, 같은 종류 프리팹의 새 인스턴스를 player 자식으로 만들어 돌려준다
+        // 풀 인스턴스를 복제하면 꺼진 채로 생기고 OriginalScale(Awake에서 저장)이 풀 크기로 잡히므로 프리팹(Items)에서 복제한다
+        // 풀 아이템이 아니면(바닥에 놓인 복제본) 그대로 돌려준다
         public GameObject CloneToPooledItem(GameObject item, Transform player)
         {
-            // 풀링 목록에 있는 아이템이면 풀링 배열로 되돌린다.
-            if (item.transform.parent == transform)
+            if (item.transform.parent != transform) return item;
+
+            ItemType itemId = item.GetComponent<ItemObject>().ItemID;
+            ReturnItem(item);
+            return Instantiate(Items[GetItemIndex(itemId)], player);
+        }
+
+        // Items 배열에서 itemId 종류의 위치
+        private int GetItemIndex(ItemType itemId)
+        {
+            for (int i = 0; i < Items.Length; i++)
             {
-                ReturnItem(item);
+                if (Items[i].GetComponent<ItemObject>().ItemID == itemId) return i;
             }
-            
-            GameObject getItem = Instantiate(item, player);
-            return getItem;
+            return -1;
         }
         
         
         private void Update()
         {
-            SpawnEndTick += Time.deltaTime;
+            spawnTimer += Time.deltaTime;
 
-            // 시간이 되면 아이템이 스폰된다.
-            if (SpawnEndTick >= SpawnTick)
+            // 생성 간격이 지나면 아이템이 스폰된다. 넘친 시간은 남겨서 초당 생성 개수를 맞춘다
+            float spawnInterval = 1f / spawnConfig.BaseSpawnRate;
+            if (spawnTimer >= spawnInterval)
             {
-                SpawnEndTick = 0f;
+                spawnTimer -= spawnInterval;
                 
                 GameObject spawnItem = GetRandomPooledItem();
                 
@@ -241,15 +235,11 @@ namespace OverFixed
             float moveDistance = -2f * Vector3.Dot(spawnCenterToStart, moveDir);
             Vector3 endPos = startPos + moveDir * moveDistance;
 
-            // DOMove/DrawLine에 도착 위치(endPos) 전달 + 도착하면 비활성화해서 풀로 반환
-            spawnItem.transform.DOMove(endPos, ItemMoveDuration).OnComplete(() => ReturnItem(spawnItem));
+            // 이동 시간 = 이동 거리 / FlowSpeed. Ease.Linear로 처음부터 끝까지 같은 속도로 흐른다 (DOTween 기본값은 점점 느려짐)
+            // 도착하면 비활성화해서 풀로 반환
+            float moveDuration = moveDistance / spawnConfig.FlowSpeed;
+            spawnItem.transform.DOMove(endPos, moveDuration).SetEase(Ease.Linear).OnComplete(() => ReturnItem(spawnItem));
             Debug.DrawLine(startPos, endPos, Color.red, 5f);
-        }
-
-        // 스폰된 아이템 집을 때 DoTween 정지
-        public void StopItemMove(GameObject item)
-        {
-            item.transform.DOKill();
         }
     }
 }

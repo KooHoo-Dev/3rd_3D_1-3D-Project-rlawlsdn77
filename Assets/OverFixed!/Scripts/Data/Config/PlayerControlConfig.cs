@@ -16,6 +16,7 @@ namespace OverFixed
         public float JetSpeed = 10f;                // 선외 : 제트 추진 최고속도 (해금 후 Shift)
         public float SpaceAccel = 20f;              // 선외 : 입력 방향으로 붙는 가속도 (초당)
         public float SpaceDrag = 1.8f;              // 선외 : 감속 계수. 입력을 떼면 속도가 exp(-SpaceDrag * 시간)으로 줄어든다
+        public float BoundaryPush = 15f;            // 선외 : 활동 구 경계를 넘었을 때 안쪽으로 밀어내는 가속도 (초당)
 
         [Header("운반, 상호작용")]
         public int CarryCount = 1;

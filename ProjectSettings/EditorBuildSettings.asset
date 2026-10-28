@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/OverFixed!/Scenes/SPACE.unity
     guid: 7ebcda719a4bbc444b0706d587d5589d
+  - enabled: 1
+    path: Assets/OverFixed!/Scenes/PLANET.unity
+    guid: bbf61ceddbf2bd748bedefed77ca99d6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

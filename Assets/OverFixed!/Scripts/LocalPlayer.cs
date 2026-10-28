@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace OverFixed
 {
+    // LocalPlayer은 너무 많은 의존성을 가지지 않는다.
+    // 실제 플레이어가 하는 행동만을 담당한다.
     public class LocalPlayer : MonoBehaviour
     {
-        [SerializeField]
-        private InteractionCube interactionCube;
-        
-        [SerializeField] // 집은 오브젝트의 오프셋을 표시하는 프로퍼티
-        private Vector3 holdOffset = new Vector3(0f, 0f, 2f); 
+        [Header("상호작용 세팅")]
+        [SerializeField] private InteractionCube interactionCube;
+        [SerializeField] private Vector3 holdOffset = new Vector3(0f, 0f, 2f); 
         
         public ItemObject Item { get; private set; }
 
@@ -78,7 +78,9 @@ namespace OverFixed
             }
 
             HoldProgressChanged?.Invoke(0f);
-            playerController.SetControlLock(false);
+
+            // 감압 중에 항해가 끝났으면(정산, 게임오버 화면) 그 화면이 건 잠금을 풀지 않는다
+            if (GameManager.Instance.IsPlaying) playerController.SetControlLock(false);
         }
 
         private void OpenBox(GameObject box)
@@ -143,7 +145,7 @@ namespace OverFixed
         // 패널 조작하기 
         private void FixPanel(GameObject panel) 
         {
-            
+            panel.GetComponent<Panel>().FixPanel();
         }
         
         private void OpenCabinet(GameObject cabinet)
@@ -152,6 +154,10 @@ namespace OverFixed
             // 2. 플레이어가 아이템을 들고 있지 않을 시 보유 아이템 목록 UI를 띄운다. (아이템 클릭 시 그 아이템을 손에 들게 됨)
             // 3. 보유 아이템 목록의 아이템은 터미널의 제출 아이템과 연동되지 않는다 (터미널 제출 아이템은 직접 손으로 들고 가야함)
             // 4. 보유 아이템 목록은 다음 행성 이동시에도 아이템이 사라지지 않고 남아있다.
+            // 5. 터미널에서의 OrderBoard에서 캐비넷 내부의 아이템을 제출 가능하다.
+            // 6. 터미널에서의 
+            
+            // interactionCube 안에 상호작용 할 시 OpenCabinet 한다.
             cabinet.GetComponent<Cabinet>().OpenCabinet();    
         }
     }

@@ -46,8 +46,10 @@ namespace OverFixed
         // Items 배열과 같은 순서의 생성 가중치 (ItemTable의 SpawnWeight)
         private float[] itemSpawnWeights;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
             // 구 사이즈 구하기
             SpawnSphereRadius = SpawnSphere.transform.lossyScale.x * 0.5f;
             SafeSphereRadius = SafeSphere.transform.lossyScale.x * 0.5f;
@@ -126,22 +128,7 @@ namespace OverFixed
             item.SetActive(false);
         }
         
-        // 풀링 + 스폰되어서 이동하는 아이템 잡음
-        // 그 아이템 집고 바닥에 내려놓음 (이거는 풀링으로 다시 들어가야하나?
-        // ---> NO (풀링으로 들어가면 스폰 위치로 돌아가서 움직일 가능성 있음, Player 자식에서 해제되면 될듯)
-        // 근데 그러면 풀링에 빠진 아이템때문에 특정 아이템이 더 적게 or 더 많게 나올 수 있음 
-        // 일단 풀링으로 돌아가는건 터미널에서 오더 아이템 제출할때는 필수로 들어가야함
-        // 일단 아이템마다 가중치가 있어서 모든 아이템이 동일한 확률은 아님
-        // 근데 이러면 ItemTable에 맞는 확률이 나오지 않음 (플레이마다 다른 확률이 적용됨)
-        
-        // 해결방법 (1번)
-        // 1. 선외에서 아이템 집을 때 그 아이템을 풀링 대기로 리턴시키고 잡은 아이템을 새 인스턴스로 만들어서 Pooling 목록과는 별개로 진행
-        // 2. 잡기 / 놓기 / 제출 때마다 풀링을 그때그때 추가로 진행한다.
-        
-        // 근데 바닥에 떨어뜨린 아이템을 다시 주울 때는?
-        // 그건 그냥 기존 TakeItem을 쓰면 될듯
-        // 그리고 LocalPlayer가 아이템의 kinematic이나 collider을 직접 조정하는게 의존성 부분에서 맞는 디자인인지 모르겠음
-
+        // 잡은 아이템은 풀에서 빠지지 않는다. 풀 개수가 줄지 않아 생성 비율(ItemTable의 SpawnWeight)이 유지된다
         // 아이템을 잡을 때 호출. 풀 아이템이면 풀로 되돌리고, 같은 종류 프리팹의 새 인스턴스를 player 자식으로 만들어 돌려준다
         // 풀 인스턴스를 복제하면 꺼진 채로 생기고 OriginalScale(Awake에서 저장)이 풀 크기로 잡히므로 프리팹(Items)에서 복제한다
         // 풀 아이템이 아니면(바닥에 놓인 복제본) 그대로 돌려준다
@@ -239,7 +226,6 @@ namespace OverFixed
             // 도착하면 비활성화해서 풀로 반환
             float moveDuration = moveDistance / spawnConfig.FlowSpeed;
             spawnItem.transform.DOMove(endPos, moveDuration).SetEase(Ease.Linear).OnComplete(() => ReturnItem(spawnItem));
-            Debug.DrawLine(startPos, endPos, Color.red, 5f);
         }
     }
 }

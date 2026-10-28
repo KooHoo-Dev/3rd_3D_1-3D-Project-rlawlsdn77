@@ -21,7 +21,6 @@ namespace OverFixed
     {
         public ItemType ItemID;
         public string Name;
-        public float CarrySpeedRate;
         public float SpawnWeight;
         public float SpawnDistanceMin; 
         
@@ -31,7 +30,6 @@ namespace OverFixed
             {
                 ItemID = TsvParser.ToEnum<ItemType>(cells["ItemID"]),
                 Name = cells["Name"],
-                CarrySpeedRate = TsvParser.ToFloat(cells["CarrySpeedRate"]),
                 SpawnWeight = TsvParser.ToFloat(cells["SpawnWeight"]),
                 SpawnDistanceMin = TsvParser.ToFloat(cells["SpawnDistanceMin"]),
             };

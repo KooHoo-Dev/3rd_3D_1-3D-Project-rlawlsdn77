@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Jay;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace OverFixed
 {
@@ -10,6 +11,9 @@ namespace OverFixed
     {
         [Header("설정값 (OrderConfig로 동시 주문 수, 빈자리 보충 대기 시간 조절)")]
         [SerializeField] private OrderConfig orderConfig;
+
+        [Header("주문을 완료하면 안정도를 올릴 코어")]
+        [SerializeField] private Core core;
 
         public OrderBoard Board { get; private set; }
 
@@ -25,10 +29,13 @@ namespace OverFixed
 
             Board = new OrderBoard(candidateRows, orderConfig.MaxOrderCount, orderConfig.RefillDelay, candidateCount => Random.Range(0, candidateCount));
             Board.OrderCompleted += GiveReward;
+            Board.OrderFailed += RecordFail;
         }
 
+        // 항해 중에만 주문 시간이 흐른다
         private void Update()
         {
+            if (GameManager.Instance.IsPlaying == false) return;
             Board.Tick(Time.deltaTime);
         }
 
@@ -41,6 +48,14 @@ namespace OverFixed
         private void GiveReward(ActiveOrder order)
         {
             AccountManager.Instance.AddCredit(order.Row.Reward);
+            core.PlusStability();
+            GameManager.Instance.RecordOrderSuccess(order.Row.Reward);
+        }
+
+        private void RecordFail(ActiveOrder order)
+        {
+            GameManager.Instance.RecordOrderFail();
+            core.MinusStability();
         }
     }
 }

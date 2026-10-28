@@ -1,4 +1,5 @@
 ﻿ModuleID	Name	ShortName	MaxDurability	Price	EffectType	EffectValue	EffectScope	Desc
+#모듈 ID	이름	짧은 이름	최대 내구도	가격 (크레딧)	효과 종류	효과 값	효과 범위 (Self 자기, Adjacent 붙은 모듈, Global 함선 전체)	설명
 Central	중앙 모듈	중앙	0	0	Core	0	Self	코어 · 터미널 · 에어락 · 소화기 거치대
 Airlock	보조 에어락	에어락	100	150	Airlock	6	Self	선외 출입구 추가 · 하역구 (선외에서 넣은 재료가 선내 하역함 6칸으로)
 Delivery	납품소	납품	100	180	PackDelivery	0.3	Self	포장 납품대 · 재료를 넣고 E 2초 홀드로 포장 납품하면 보상 +30%

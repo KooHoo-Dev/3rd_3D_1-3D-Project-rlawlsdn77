@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Study.Utilities;
+﻿using Study.Utilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -11,10 +10,6 @@ namespace OverFixed
         [SerializeField] private GameObject terminalPanel;  // 켜고 끄는 터미널 화면
         [SerializeField] private Button closeButton;
         [SerializeField] private PlayerController playerController; // 화면이 열린 동안 이동, 시점을 잠근다
-
-        [SerializeField] private List<GameObject> Items;
-
-        [SerializeField] private OrderConfig orderConfig;
 
         // 열림 여부는 화면이 켜져 있는지로 판단한다 (따로 변수를 두면 다른 곳에서 화면을 끌 때 어긋난다)
         public bool IsTerminalOpen => terminalPanel.activeSelf;
@@ -71,9 +66,9 @@ namespace OverFixed
             return OrderManager.Instance.SubmitItem(item.ItemID);
         }
 
-        public void CheckQuestItem(GameObject item)
+        public void CheckOrderItem(GameObject item)
         {
-
+            
         }
     }
 

@@ -10,6 +10,11 @@ namespace OverFixed
     // 3. 게임 시작 시 "보조 에어락"과 "납품소"가 기본적으로 지급된다 (각각 코어모듈의 위 / 아래 위치에 배정된다.)
     // 4. 중앙 모듈을 제외한 각 모듈은 내구도를 가지고 있으며
     // 함선 사고로 내구도가 감소한다. (운석 충돌은 추후 업데이트)
+    
+    // 모듈은 게임 플레이 중에 발생하는 사고, 이벤트 등의 문제로 내구도가 회복되거나 감소할 수 있다.
+    // 모듈은 플레이 중에 수리, 교체, 판매, 추가가 불가능하고 행성(PLANET씬)에서만 조정이 가능하다.
+    // 모듈 내구도는 정제소
+    
     public class ModuleManager : SingletonBase<ModuleManager>
     {
         [Header("설정값 (ModuleConfig로 조절 가능)")]
@@ -18,22 +23,28 @@ namespace OverFixed
         public SpaceModule CoreModule { get; private set; }
         
         // 모듈 틀
-        public SpaceModule[,] ModuleFrame { get; private set; }
+        public SpaceModule[,] Modules { get; private set; }
         
         // 현재 모듈
         public SpaceModule[,] CurrentModules { get; private set; }
         
-        
         private void SetModules()
         {
-            ModuleFrame = new SpaceModule[moduleConfig.MaxWidth, moduleConfig.MaxHeight];
+            Modules = new SpaceModule[moduleConfig.MaxWidth, moduleConfig.MaxHeight];
         }
 
         // 코어 모듈은 2차원 모듈 배열에서 항상 가운데에 존재한다.
         private void SetCoreModule()
         {
             // 모듈 중앙에 코어 모듈 저장
-            ModuleFrame[moduleConfig.MaxWidth / 2, moduleConfig.MaxHeight / 2] = CoreModule;
+            Modules[moduleConfig.MaxWidth / 2, moduleConfig.MaxHeight / 2] = CoreModule;
+        }
+
+        private void GetModules()
+        {
+            Modules = new SpaceModule[moduleConfig.MaxWidth, moduleConfig.MaxHeight];
+            
+            
         }
 
         private void ChoiceModule(SpaceModule module)
@@ -43,12 +54,11 @@ namespace OverFixed
         
         private void UpdateModules()
         {
-            
             for (int i = 0; i < moduleConfig.MaxWidth; i++)
             {
                 for (int j = 0; j < moduleConfig.MaxWidth; j++)
                 {
-                    ModuleFrame[i, j] = null;
+                    Modules[i, j] = null;
                 }
             }
         }

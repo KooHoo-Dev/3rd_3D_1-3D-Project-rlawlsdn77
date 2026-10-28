@@ -1,4 +1,5 @@
 ﻿OrderID	RequireItems	TimeLimit	Reward	RequireModule
+#주문 ID	필요한 재료 (재료:개수, 여러 종류는 |)	제한시간 (초)	보상 (크레딧)	필요한 모듈 (여러 개는 ;, 비면 조건 없음)
 O01	Scrap:1	60	30	
 O02	Scrap:2	70	50	
 O03	Scrap:3	80	70	

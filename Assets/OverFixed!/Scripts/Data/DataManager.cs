@@ -12,6 +12,7 @@ namespace OverFixed
         private static Dictionary<ItemType, ItemRow> itemTable;
         private static List<OrderRow> orderTable;
         private static List<VoyageRow> voyageTable;
+        private static List<EventRow> eventTable;
 
         // 재료 한 종류의 행. 테이블에 없는 재료면 예외가 나서 TSV 누락을 바로 알 수 있다
         public static ItemRow GetItem(ItemType itemId)
@@ -49,6 +50,13 @@ namespace OverFixed
             if (voyageTable == null) voyageTable = TsvParser.ParseRows(LoadTsv("VoyageTable"), VoyageRow.FromCells);
             int rowIndex = Mathf.Clamp(voyageIndex, 1, voyageTable.Count) - 1;
             return voyageTable[rowIndex];
+        }
+
+        // 패널 사고 테이블 전체 (사고 종류를 뽑을 때 후보 목록으로 쓴다)
+        public static IReadOnlyList<EventRow> GetEventRows()
+        {
+            if (eventTable == null) eventTable = TsvParser.ParseRows(LoadTsv("EventTable"), EventRow.FromCells);
+            return eventTable;
         }
 
         private static string LoadTsv(string tableName)

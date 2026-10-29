@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c06bb32a41d85ce48a44b5e2fdfe2c5b, type: 3}
   m_Name: PlayerControlConfig
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.PlayerControlConfig
-  MoveSpeed: 4
-  RunSpeed: 8
+  MoveSpeed: 3
+  RunSpeed: 6
   Gravity: 9.81
   AxisSpeed: 3
   SpaceSpeed: 5
@@ -29,3 +29,10 @@ MonoBehaviour:
   MouseAxisScale: 0.1
   InteriorMaxLookAngle: 60
   ExteriorMaxLookAngle: 80
+  AnimationDampTime: 0.1
+  WalkStrideSpeed: 1.03
+  RunStrideSpeed: 3.21
+  LookAtWeight: 1
+  LookAtBodyWeight: 0.3
+  LookAtHeadWeight: 1
+  HandIKBlendSpeed: 4

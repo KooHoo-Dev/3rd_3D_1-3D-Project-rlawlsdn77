@@ -7,7 +7,7 @@ namespace OverFixed
     public class Core : MonoBehaviour
     {
         // 1. 코어는 시간이 지날수록 점진적으로 안정도가 감소한다
-        // 2. 오더의 제한시간 안에 납부 여부에 따라 코어 안정도가 증감한다.
+        // 2. 오더의 제한시간 안에 납부 여부에 따라 코어 안정도가 증감한다. 패널 사고를 제한시간 안에 못 풀어도 감소한다
         // 3. 안정도는 0 ~ MaxStability 사이에 머물고, 항해 중에 0이 되면 게임오버
 
         [Header("설정값 (CoreConfig로 회복량, 감소량, 상한 조절. 시간 감소량은 VoyageTable의 BaseDecay)")]
@@ -26,6 +26,12 @@ namespace OverFixed
         public void MinusStability()
         {
             ChangeStability(-coreConfig.OrderFailPenalty);
+        }
+
+        // 패널 사고 시간 초과 시 Panel에서 호출당함 (감소량은 EventTable의 StabilityPenalty)
+        public void MinusStability(float stabilityPenalty)
+        {
+            ChangeStability(-stabilityPenalty);
         }
 
         private void Update()

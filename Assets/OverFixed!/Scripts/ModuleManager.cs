@@ -1,4 +1,5 @@
 ﻿using Jay;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace OverFixed
@@ -22,14 +23,12 @@ namespace OverFixed
         
         public SpaceModule CoreModule { get; private set; }
         
-        // 모듈 틀
+        // 2차월 모듈 배열
         public SpaceModule[,] Modules { get; private set; }
         
-        // 현재 모듈
-        public SpaceModule[,] CurrentModules { get; private set; }
-        
-        private void SetModules()
+        private void Awake()
         {
+            // 모듈 배열 크기를 맞춤 (크기는 moduleConfig에서 설정한다)
             Modules = new SpaceModule[moduleConfig.MaxWidth, moduleConfig.MaxHeight];
         }
 
@@ -63,9 +62,16 @@ namespace OverFixed
             }
         }
 
-        private void AddModule(GameObject module)
+        private void InAlreadyModule()
         {
+            // 선택한 부분에 이미 모듈이 있을 때
             
+        }
+
+        private void AddModule(int x, int y, SpaceModule module)
+        {
+            if (Modules[x, y] == null) Modules[x, y] = module;
+            else InAlreadyModule();
         }
 
         private void RemoveModule(GameObject module)

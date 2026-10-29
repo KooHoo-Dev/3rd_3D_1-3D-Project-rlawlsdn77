@@ -224,10 +224,12 @@ namespace OverFixed
             //Quaternion yawRotation = Quaternion.AngleAxis(mouseX, Vector3.up);
             transform.rotation *= yawRotation; // y축은 내가 돌아갑니다. 나는 월드 입니다
             
-            // 선외는 위아래로 날아다니므로 선내보다 넓게 본다
+            // 선외는 위아래로 날아다니므로 선내보다 넓게 본다 (위로)
+            // 아래로는 MaxLookDownAngle까지만 숙인다. 1인칭이라 더 숙이면 로봇 목과 몸통 안이 보인다 (양수가 아래)
             float maxLookAngle = MoveState == MoveState.Interior ? playerControlConfig.InteriorMaxLookAngle : playerControlConfig.ExteriorMaxLookAngle;
+            float maxLookDownAngle = Mathf.Min(maxLookAngle, playerControlConfig.MaxLookDownAngle);
             verticalLookAngle -= mouseY;
-            verticalLookAngle = Mathf.Clamp(verticalLookAngle, -maxLookAngle, maxLookAngle);
+            verticalLookAngle = Mathf.Clamp(verticalLookAngle, -maxLookAngle, maxLookDownAngle);
         }
     }
 }

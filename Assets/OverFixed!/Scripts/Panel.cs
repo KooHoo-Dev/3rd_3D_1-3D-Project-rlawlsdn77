@@ -1,102 +1,105 @@
-﻿using System;
-using Study.Utilities;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using Random = UnityEngine.Random;
 
 namespace OverFixed
 {
+    // 패널 사고. 선내 패널(OxygenRack, 태그 Panel)에 붙는다
+    // 1. 항해 중에만 VoyageTable의 EventIntervalMin ~ EventIntervalMax 사이 무작위 간격으로 사고가 하나씩 난다 (한 번에 하나)
+    // 2. 사고 종류는 EventTable의 SpawnWeight로 뽑고, 종류마다 미니게임(MiniGame)이 다르다
+    // 3. 사고 중 E로 미니게임 화면을 연다. 성공 횟수는 화면을 닫았다 다시 열어도 남고, SuccessCount만큼 모이면 해결
+    // 4. 제한시간(TimeLimit)이 지나면 코어 안정도를 StabilityPenalty만큼 한 번 깎고 사고가 끝난다. 해결 보상은 없다
+    // 모듈 내구도가 없어서 기획서 5.2, 5.9와 달리 중앙 모듈에서 나고 안정도를 직접 깎는다
     public class Panel : MonoBehaviour
     {
-        // Panel 사건은 평균적으로 40초에 1번씩 발생하지만,
-        // 각 행성의 특징 or 이벤트에 영향을 받아 더 빠르게 / 늦게 발생할 수 있다. (이거는 가중치로 처리한다.)
-        
-        // ex.) Panel 사건 해결 요구시간이 30초라고 가정했을 때,
-        // Panel 사건 발생 후 요구시간이 10초 남았을 때 부터 해당 사건이 발생한 모듈의 내구도가 점진적으로 감소한다.
-        // 요구 시간을 초과했을 시 코어 안정도가 감소하고 내구도가 더 빨리 감소하기 시작한다.
-        // 요구 시간 안에 패널 수리 성공 시 해당 모듈의 내구도가 상승한다.
-        
-        [SerializeField] private float accidentTick = 40f;
-        [SerializeField] private float accidentTimer = 0f;
+        [SerializeField] private Core core;                 // 시간 초과 시 안정도를 깎는다
+        [SerializeField] private MiniGameUI miniGameUI;     // 사고 중 E로 여는 미니게임 화면
 
-        [SerializeField] private float clearAccidentTimer = 0f;
-        [SerializeField] private float clearAccidentTick = 30f;
-        
-        [Header("미니게임 패널 화면")]
-        [SerializeField] private GameObject panel;
+        // 지금 사고의 EventTable 행. 사고가 없으면 null
+        public EventRow CurrentEvent { get; private set; }
+        public bool IsAccident => CurrentEvent != null;
+        public float RemainingTime { get; private set; }    // 제한시간까지 남은 시간 (초)
+        public int SuccessCount { get; private set; }       // 이번 사고에서 모은 성공 횟수
 
-        [Header("미니게임 목록들")] 
-        [SerializeField] private MiniGame[] MiniGames;
+        private float nextAccidentTime;     // 다음 사고까지 남은 시간 (초)
 
-        public bool IsMiniGaming { get; private set; }
-        
         private void Start()
         {
-            panel.SetActive(false);
-            IsMiniGaming = false;
+            ScheduleNextAccident();
         }
-        
+
+        // 항해 중에만 시간이 흐른다 (정산, 게임오버 화면에서는 멈추고, 일시정지 중에는 timeScale이 0)
         private void Update()
         {
-            accidentTimer += Time.deltaTime;
+            if (GameManager.Instance.IsPlaying == false) return;
 
-            if (accidentTimer > accidentTick)
+            if (IsAccident)
             {
-                accidentTimer = 0f;
-                FixPanel();
+                RemainingTime -= Time.deltaTime;
+                if (RemainingTime <= 0f) FailAccident();
+                return;
             }
+
+            nextAccidentTime -= Time.deltaTime;
+            if (nextAccidentTime <= 0f) StartAccident();
         }
 
-        // LocalPlayer에서 호출하는 패널 고치기 로직
+        // LocalPlayer가 패널 앞에서 E를 누르면 부른다. 사고가 없으면 반응하지 않는다
         public void FixPanel()
         {
-            // 패널 활성화 및 미니게임 시작
-            panel.SetActive(true);
-            IsMiniGaming = true;
-
-            Random.Range(0, MiniGames.Length);
+            if (IsAccident == false) return;
+            miniGameUI.Open(this);
         }
 
-        public void MiniGame_0()
+        // 미니게임 성공 1회. MiniGameUI가 부른다
+        public void AddSuccess()
         {
-            MiniGame MiniGame_0 = MiniGames[0];            
+            if (IsAccident == false) return;
+
+            SuccessCount++;
+            if (SuccessCount >= CurrentEvent.SuccessCount) EndAccident();
         }
 
-        public void MiniGame_1()
+        private void StartAccident()
         {
-            MiniGame MiniGame_1 = MiniGames[1];
+            CurrentEvent = PickEvent();
+            RemainingTime = CurrentEvent.TimeLimit;
+            SuccessCount = 0;
         }
 
-        public void MiniGame_2()
+        // 시간 초과. 안정도를 한 번 깎고 사고를 끝낸다
+        private void FailAccident()
         {
-            MiniGame MiniGame_2 = MiniGames[2];
+            core.MinusStability(CurrentEvent.StabilityPenalty);
+            EndAccident();
         }
-    }
 
-    public class MiniGame
-    {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public float LimitTime { get; private set; }
-        public int Reward { get; private set; }
-
-        public MiniGame(int ID, string Name, string Description, float LimitTime, int Reward)
+        private void EndAccident()
         {
-            this.Id = ID;
-            this.Name = Name;
-            this.Description = Description;
-            this.LimitTime = LimitTime;
-            this.Reward = Reward;
+            CurrentEvent = null;
+            miniGameUI.Close();
+            ScheduleNextAccident();
         }
-    }
 
-    public class MiniGame_0
-    {
-        public int Id = 0;
-        public string Name = "패널 수리";
-        public string Description = "중앙의 영역 안에 좌우로 움직이는 토글이 들어올 때 SPACE 바를 누르면 통과, 3회 연속 성공시 완료.";
-        public float LimitTime = 30f;
-        public int Reward = 30;
+        private void ScheduleNextAccident()
+        {
+            VoyageRow voyage = GameManager.Instance.Voyage;
+            nextAccidentTime = Random.Range(voyage.EventIntervalMin, voyage.EventIntervalMax);
+        }
+
+        // SpawnWeight 비중으로 사고 종류 하나를 뽑는다
+        private static EventRow PickEvent()
+        {
+            IReadOnlyList<EventRow> eventRows = DataManager.GetEventRows();
+            float totalWeight = 0f;
+            foreach (EventRow eventRow in eventRows) totalWeight += eventRow.SpawnWeight;
+
+            float pick = Random.Range(0f, totalWeight);
+            foreach (EventRow eventRow in eventRows)
+            {
+                pick -= eventRow.SpawnWeight;
+                if (pick < 0f) return eventRow;
+            }
+            return eventRows[eventRows.Count - 1];
+        }
     }
 }

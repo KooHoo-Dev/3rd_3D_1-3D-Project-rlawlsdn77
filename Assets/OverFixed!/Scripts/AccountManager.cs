@@ -17,5 +17,14 @@ namespace OverFixed
             GameManager.Instance.Credit += credit;
             CreditChanged?.Invoke(CurrentCredit);
         }
+
+        // 터미널의 안정화 물질 구매. 규칙은 GameManager.TryBuyStabilizer (PLANET 정비도 같은 규칙), 사면 크레딧 변화를 알린다
+        public bool BuyStabilizer()
+        {
+            if (GameManager.Instance.TryBuyStabilizer() == false) return false;
+
+            CreditChanged?.Invoke(CurrentCredit);
+            return true;
+        }
     }
 }

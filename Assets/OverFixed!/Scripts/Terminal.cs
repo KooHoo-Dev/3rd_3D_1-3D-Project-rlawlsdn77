@@ -1,6 +1,4 @@
-﻿using Study.Utilities;
-using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace OverFixed
@@ -23,12 +21,6 @@ namespace OverFixed
             closeButton.onClick.AddListener(CloseTerminal);
         }
 
-        // 화면이 열린 동안은 E가 잠기므로 Esc나 닫기 버튼으로 닫는다
-        private void Update()
-        {
-            if (IsTerminalOpen && SimpleInput.GetKeyDown(Key.Escape)) CloseTerminal();
-        }
-
         // 터미널 앞에서 빈손으로 E: 꺼져 있으면 켜고, 켜져 있으면 끈다
         public void AccessTerminal()
         {
@@ -48,6 +40,7 @@ namespace OverFixed
             Cursor.visible = true;
         }
 
+        // 화면이 열린 동안은 E가 잠기므로 닫기 버튼이나 Esc(PauseUI가 처리)로 닫는다
         public void CloseTerminal()
         {
             if (IsTerminalOpen == false) return;
@@ -64,11 +57,6 @@ namespace OverFixed
         public bool SubmitItem(ItemObject item)
         {
             return OrderManager.Instance.SubmitItem(item.ItemID);
-        }
-
-        public void CheckOrderItem(GameObject item)
-        {
-            
         }
     }
 

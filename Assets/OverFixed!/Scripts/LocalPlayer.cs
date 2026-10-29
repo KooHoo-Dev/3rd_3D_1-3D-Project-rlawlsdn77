@@ -10,12 +10,16 @@ namespace OverFixed
     {
         [Header("상호작용 세팅")]
         [SerializeField] private InteractionCube interactionCube;
-        [SerializeField] private Vector3 holdOffset = new Vector3(0f, 0f, 2f); 
-        
+        [SerializeField] private Vector3 holdOffset = new Vector3(0f, 0f, 2f);
+
         public ItemObject Item { get; private set; }
 
         // 홀드 진행도 (0 ~ 1). 0이면 진행 중인 홀드가 없다. HUD 홀드 막대가 구독한다
         public Action<float> HoldProgressChanged;
+
+        // 재료를 주웠을 때, 장치(터미널, 패널, 에어락)를 썼을 때. 로봇 애니메이션(PlayerAnimator)이 구독한다
+        public Action ItemPickedUp;
+        public Action DeviceUsed;
 
         private PlayerController playerController;
         private CharacterController characterController; 
@@ -49,6 +53,7 @@ namespace OverFixed
 
         private void OpenAirLock(GameObject airlock)
         {
+            DeviceUsed?.Invoke();
             StartCoroutine(PassAirLock(airlock.GetComponent<AirLock>()));
         }
 
@@ -106,6 +111,7 @@ namespace OverFixed
 
             // 줍은 아이템을 플레이어의 아이템으로 등록
             Item = itemObject;
+            ItemPickedUp?.Invoke();
         }
         
         public void LeaveItem()
@@ -131,6 +137,7 @@ namespace OverFixed
             Terminal targetTerminal = terminal.GetComponent<Terminal>();
             if (Item == null)
             {
+                DeviceUsed?.Invoke();
                 targetTerminal.AccessTerminal();
                 return;
             }
@@ -140,12 +147,17 @@ namespace OverFixed
 
             Destroy(Item.gameObject);
             Item = null;
+            DeviceUsed?.Invoke();
         }
 
-        // 패널 조작하기 
-        private void FixPanel(GameObject panel) 
+        // 패널 조작하기. 사고가 없으면 반응하지 않는다
+        private void FixPanel(GameObject panel)
         {
-            panel.GetComponent<Panel>().FixPanel();
+            Panel targetPanel = panel.GetComponent<Panel>();
+            if (targetPanel.IsAccident == false) return;
+
+            DeviceUsed?.Invoke();
+            targetPanel.FixPanel();
         }
         
         private void OpenCabinet(GameObject cabinet)

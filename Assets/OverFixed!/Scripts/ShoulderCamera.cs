@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 숄더뷰 카메라
+    // 플레이어 카메라. 10/29부터 1인칭 (피벗을 로봇 눈높이에 두고 카메라를 피벗 위치에 둔다. 이름은 숄더뷰 시절 그대로)
     // 플레이어(좌우 회전, PlayerController) → 카메라 피벗(상하 회전) → 카메라(피벗의 자식)
     [RequireComponent(typeof(PlayerController))]
     public class ShoulderCamera : MonoBehaviour
@@ -13,7 +13,11 @@ namespace OverFixed
         [SerializeField] private Camera playerCamera; 
 
         [Header("조준")]
-        [SerializeField] private float maxAimDistance = 30f; 
+        [SerializeField] private float maxAimDistance = 30f;
+
+        // 화면 중앙이 가리키는 지점. 로봇의 머리 IK(PlayerAnimator)도 이곳을 본다
+        public Vector3 AimPoint { get; private set; }
+
         // 아래는 내부변수들
         private PlayerController playerController;
 
@@ -29,8 +33,8 @@ namespace OverFixed
             cameraPivot.localRotation = Quaternion.Euler(playerController.VerticalLookAngle, 0f, 0f);
 
             // 머리는 화면 중앙이 가리키는 지점을 바라본다
-            Vector3 aimPoint = FindAimPoint();
-            Vector3 lookDirection = aimPoint - playerHead.position;
+            AimPoint = FindAimPoint();
+            Vector3 lookDirection = AimPoint - playerHead.position;
             if (lookDirection.sqrMagnitude > 0.0001f) playerHead.rotation = Quaternion.LookRotation(lookDirection, transform.up);
         }
 

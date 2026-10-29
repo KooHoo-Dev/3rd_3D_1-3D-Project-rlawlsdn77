@@ -29,5 +29,15 @@ namespace OverFixed
         public float MouseAxisScale = 0.1f;         // 마우스 이동량(픽셀)을 회전 각도로 줄이는 기본 배율 (개발자 조절값)
         public float InteriorMaxLookAngle = 60f;    // 선내 : 마우스 상하 시야 한계 (도)
         public float ExteriorMaxLookAngle = 80f;    // 선외 : 마우스 상하 시야 한계 (도)
+        public float MaxLookDownAngle = 40f;        // 선내·선외 : 아래로 숙이는 한계 (도). 1인칭에서 더 숙이면 로봇 목과 몸통 안이 보인다
+
+        [Header("애니메이션, IK (PlayerAnimator)")]
+        public float AnimationDampTime = 0.1f;      // 이동 속도 값이 애니메이터에 따라가는 시간 (초). 클수록 걷기·달리기가 부드럽게 바뀐다
+        public float WalkStrideSpeed = 1.03f;       // Walk 클립에서 디딘 발(아래쪽 발)이 몸 뒤로 가는 속도 (m/s, 로봇 크기 1.228 기준으로 잰 값)
+        public float RunStrideSpeed = 3.21f;        // Run 클립에서 디딘 발이 몸 뒤로 가는 속도 (m/s). 이보다 빠르면 Run을 그만큼 빨리 재생한다
+        public float LookAtWeight = 1f;             // 조준점을 바라보는 IK 전체 세기 (0 ~ 1)
+        public float LookAtBodyWeight = 0.3f;       // 상체가 함께 도는 정도 (0 ~ 1)
+        public float LookAtHeadWeight = 1f;         // 머리가 도는 정도 (0 ~ 1)
+        public float HandIKBlendSpeed = 4f;         // 재료를 들고 놓을 때 손 IK 세기가 0 ↔ 1을 오가는 속도 (초당)
     }
 }

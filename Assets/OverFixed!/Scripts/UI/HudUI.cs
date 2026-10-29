@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 항해 HUD. 코어 안정도, 크레딧, 도착까지 남은 시간, 주문 3칸, 손에 든 재료를 그린다
+    // 항해 HUD. 코어 안정도, 크레딧, 도착까지 남은 시간, 주문 3칸, 손에 든 재료, 패널 사고 알림을 그린다
     // 크레딧과 주문 내용은 바뀔 때 알림을 받아 그리고, 계속 줄어드는 시간과 안정도는 Update에서 그린다
     // 막대는 Fill의 anchorMax.x로 채운다 (HoldBarUI와 같은 방식)
     public class HudUI : MonoBehaviour
@@ -46,6 +46,11 @@ namespace OverFixed
         [SerializeField] private TMP_Text handsTitleValue;  // "손 0/1"
         [SerializeField] private TMP_Text handsValue;       // 재료 이름. 빈손이면 "빈손"
 
+        [Header("패널 사고 알림 (사고 중에만 보인다)")]
+        [SerializeField] private Panel panel;
+        [SerializeField] private GameObject accidentBox;
+        [SerializeField] private TMP_Text accidentValue;    // "패널 고장 · 25s"
+
         private ItemObject shownItem;   // 지금 손 칸에 그려진 재료. 바뀔 때만 다시 그린다
 
         // 경고가 아닐 때 안정도 글자와 막대 색 (프리팹에 정해 둔 색)
@@ -79,6 +84,7 @@ namespace OverFixed
             DrawRemainingTime();
             DrawOrderTimes();
             if (localPlayer.Item != shownItem) DrawHands(localPlayer.Item);
+            DrawAccident();
         }
 
         private void DrawCredit(int credit)
@@ -90,7 +96,7 @@ namespace OverFixed
         private void DrawStability()
         {
             float stability = GameManager.Instance.Stability;
-            stabilityValue.text = Mathf.CeilToInt(stability) + "%";
+            stabilityValue.text = UIText.ToStability(stability);
             SetFill(stabilityFill, stability / coreConfig.MaxStability);
 
             bool isWarning = stability <= coreConfig.WarningThreshold;
@@ -101,8 +107,7 @@ namespace OverFixed
         private void DrawRemainingTime()
         {
             float remainingTime = GameManager.Instance.RemainingTime;
-            int remainingSeconds = Mathf.CeilToInt(remainingTime);
-            timeValue.text = "도착까지 " + remainingSeconds / 60 + ":" + (remainingSeconds % 60).ToString("00");
+            timeValue.text = "도착까지 " + UIText.ToMinuteSecond(remainingTime);
             SetFill(routeFill, 1f - remainingTime / GameManager.Instance.Voyage.VoyageTime);
         }
 
@@ -120,7 +125,7 @@ namespace OverFixed
                     card.rewardValue.text = "";
                     continue;
                 }
-                card.itemsValue.text = GetItemsText(order);
+                card.itemsValue.text = UIText.ToOrderItems(order);
                 card.rewardValue.text = order.Row.Reward + " CR";
             }
         }
@@ -152,16 +157,11 @@ namespace OverFixed
             handsValue.text = heldItem == null ? "빈손" : heldItem.Row.Name;
         }
 
-        // "고철 1/2 · 크리스탈 0/1"
-        private static string GetItemsText(ActiveOrder order)
+        // 사고 중에만 알림 칸을 켜고 제한시간까지 남은 시간을 그린다
+        private void DrawAccident()
         {
-            var itemTexts = new List<string>();
-            foreach (ItemCount requireItem in order.Row.RequireItems)
-            {
-                string itemName = DataManager.GetItem(requireItem.ItemID).Name;
-                itemTexts.Add(itemName + " " + order.GetFilledCount(requireItem.ItemID) + "/" + requireItem.Count);
-            }
-            return string.Join(" · ", itemTexts);
+            accidentBox.SetActive(panel.IsAccident);
+            if (panel.IsAccident) accidentValue.text = "패널 고장 · " + Mathf.CeilToInt(panel.RemainingTime) + "s";
         }
 
         private static void SetFill(RectTransform fill, float rate)

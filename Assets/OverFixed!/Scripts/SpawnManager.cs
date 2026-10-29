@@ -18,7 +18,7 @@ namespace OverFixed
     // 2. GetRandomPooledItem으로 PooledItems 배열 내 랜덤한 인덱스의 오브젝트를 스폰할 오브젝트로 선정한다.
     
     // 스폰 형식
-    // 1. 아이템은 SpawnSphere 구 표면의 무작위 위치에서 스폰되어 함선 방향으로 이동한다.
+    // 1. 아이템은 SpawnSphere 구 위쪽 반구 표면의 무작위 위치에서 스폰되어 함선 방향으로 이동한다. (에어락이 지붕에 있어 함선 아래로 지나가면 잡기 어렵다)
     // 2. 아이템은 SafeSphere 구와 충돌하지 않는 방향으로 이동한다.
     // 2. 아이템이 SpawnSphere 범위 밖으로 사라지면 풀링 배열로 돌아간다.
     
@@ -176,7 +176,10 @@ namespace OverFixed
 
         private void SpawnItem(GameObject spawnItem)
         {
-            Vector3 SpawnPoint = SpawnSphere.transform.position + Random.onUnitSphere * SpawnSphereRadius ;
+            // 구 표면의 무작위 방향을 고르고, 아래쪽이면 위로 뒤집어 위쪽 반구에서만 생성한다
+            Vector3 spawnDir = Random.onUnitSphere;
+            spawnDir.y = Mathf.Abs(spawnDir.y);
+            Vector3 SpawnPoint = SpawnSphere.transform.position + spawnDir * SpawnSphereRadius;
 
             spawnItem.transform.position = SpawnPoint;
             spawnItem.transform.forward = Vector3.forward; // World 기준 Z 방향 바라보게 하기
@@ -190,17 +193,13 @@ namespace OverFixed
         // 3. 접선 이동해야할듯 (SpawnSphere 랜덤 위치에서 접선 위치로 (탄젠트인가?) Ray를 쏘기..?) 방향만 normalized로 알면 EndPos 알수 있을듯..
         // 4. 이동 방향은 원뿔 형태의 경로 중 하나로 선택될듯
         // 5. 원뿔의 수많은 경로 중 하나를 선택하는 기준..? ->
-        // 아이템 스폰 위치가 worldPosition 기준으로
-        // y가 0보다 같거나 크면 위쪽으로, y가 0보다 작으면 아래쪽으로 이동한다.
-        
+        // 스폰 위치가 위쪽 반구뿐이므로 항상 위쪽 접선으로 이동한다 (함선 위로 지나간다)
+
         private void ItemMove(GameObject spawnItem)
-        { 
+        {
             // 스폰한 아이템 위치
             Vector3 startPos = spawnItem.transform.position;
-            
-            // 스폰 위치가 worldPos 기준 위인지 아래인지 확인
-            bool IsSpawnUpper = startPos.y >= 0;
-            
+
             // 안전지역 구 위치
             Vector3 safeSpherePos = SafeSphere.transform.position;
             
@@ -210,10 +209,10 @@ namespace OverFixed
             // 접선 원뿔의 반각 (sin = 안전지역 구 반지름 / 안전지역 구 중심까지 거리)
             float tangentAngle = Mathf.Asin(SafeSphereRadius / SpawnToSafeDir.magnitude);
 
-            // SpawnToSafeDir에 수직이면서 위(아래)를 향하는 벡터
-            Vector3 SafeToDot = Vector3.ProjectOnPlane(IsSpawnUpper ? Vector3.up : Vector3.down, SpawnToSafeDir).normalized;
+            // SpawnToSafeDir에 수직이면서 위를 향하는 벡터
+            Vector3 SafeToDot = Vector3.ProjectOnPlane(Vector3.up, SpawnToSafeDir).normalized;
 
-            // 안전지역 구 중심 방향에서 tangentAngle만큼 위(아래)로 꺾은 접선 방향 (기존: 중심 방향 그대로라 SafeSphere 관통)
+            // 안전지역 구 중심 방향에서 tangentAngle만큼 위로 꺾은 접선 방향 (기존: 중심 방향 그대로라 SafeSphere 관통)
             Vector3 moveDir = Mathf.Cos(tangentAngle) * SpawnToSafeDir.normalized + Mathf.Sin(tangentAngle) * SafeToDot;
 
             // moveDir로 직진했을 때 SpawnSphere 반대편 표면과 만나는 지점

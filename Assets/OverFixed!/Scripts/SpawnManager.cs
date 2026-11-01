@@ -1,230 +1,114 @@
-﻿using DG.Tweening;
+﻿using System.Collections.Generic;
+using DG.Tweening;
 using Jay;
 using UnityEngine;
 
 namespace OverFixed
 {
-    
-    // 스폰 위치 : 중앙 코어 모듈부터 가장 멀리 떨어진 모듈을 기준을 반지름 + 보정값으로 구_A를 만들고
-    //  구_A보다 일정 배수만큼 더 큰 형태의 구_B를 만든 후,
-    // 구_B에서 구_A를 제외한 영역에서 생성되게 한다.
-    // 구_A를 생성할 때 각 모듈의 중심이 피벗이 되기 때문에 모듈에 겹쳐서 생성될 가능성이 있으므로
-    // 오프셋을 설정해서 일정거리 더 띄운 거리를 반지름으로 설정한다.
-    
-    // 현재는 안전구역 Sphere와 스폰 Sphere를 오브젝트로 만들어서 프로토타입으로 진행한다.    
-    
-    // 스폰할 아이템 선정 방식
-    // 1. Awake 때 먼저 아이템 오브젝트를 각각 PoolCount 만큼 풀링하여 PooledItems 배열에 넣는다 (비활성화 + Size 맞추기)
-    // 2. GetRandomPooledItem으로 PooledItems 배열 내 랜덤한 인덱스의 오브젝트를 스폰할 오브젝트로 선정한다.
-    
-    // 스폰 형식
-    // 1. 아이템은 SpawnSphere 구 위쪽 반구 표면의 무작위 위치에서 스폰되어 함선 방향으로 이동한다. (에어락이 지붕에 있어 함선 아래로 지나가면 잡기 어렵다)
-    // 2. 아이템은 SafeSphere 구와 충돌하지 않는 방향으로 이동한다.
-    // 2. 아이템이 SpawnSphere 범위 밖으로 사라지면 풀링 배열로 돌아간다.
-    
-    
+    // 선외 재료 생성. 재료는 spawnSphere 위쪽 반구 표면에서 생겨, safeSphere(함선)를 위로 스치는 접선 방향으로
+    // 반대편 표면까지 흐른 뒤 풀로 돌아간다 (에어락이 지붕에 있어 함선 위로 지나가야 잡기 쉽다)
     public class SpawnManager : SingletonBase<SpawnManager>
     {
-        private Transform coreModuleTransform;
-        private Transform[] moduleTransformList;
-        
-        [Header("Spawn Settings")]
         [SerializeField] private SpawnConfig spawnConfig;
-        
-        [SerializeField] private GameObject[] Items;
-        [SerializeField] private GameObject[] PooledItems;
-            
-        [SerializeField] private GameObject SpawnSphere;
-        [SerializeField] private GameObject SafeSphere;
+        [SerializeField] private ItemObject[] itemPrefabs;  // 생성할 재료 종류. 비중은 ItemTable의 SpawnWeight
+        [SerializeField] private Transform spawnSphere;     // 반지름 = 스케일의 절반
+        [SerializeField] private Transform safeSphere;
 
-        private float SpawnSphereRadius;
-        private float SafeSphereRadius;
+        private readonly List<ItemObject> pooledItems = new List<ItemObject>();
+        private float spawnTimer;   // 마지막 생성 뒤 지난 시간
 
-        // 마지막 생성 뒤 지난 시간. 생성 간격(1 / BaseSpawnRate)을 넘으면 하나 생성한다
-        private float spawnTimer;
-
-        // Items 배열과 같은 순서의 생성 가중치 (ItemTable의 SpawnWeight)
-        private float[] itemSpawnWeights;
+        private float SpawnRadius => spawnSphere.lossyScale.x * 0.5f;
+        private float SafeRadius => safeSphere.lossyScale.x * 0.5f;
 
         protected override void Awake()
         {
             base.Awake();
 
-            // 구 사이즈 구하기
-            SpawnSphereRadius = SpawnSphere.transform.lossyScale.x * 0.5f;
-            SafeSphereRadius = SafeSphere.transform.lossyScale.x * 0.5f;
-
-            PooledItems = new GameObject[Items.Length * spawnConfig.PoolCount];
-            Pooling();
-            
-            itemSpawnWeights = new float[Items.Length];
-            for (int i = 0; i < Items.Length; i++)
+            // 종류마다 PoolCount개를 꺼 둔 채 만들어 둔다
+            foreach (ItemObject itemPrefab in itemPrefabs)
             {
-                ItemType itemId = Items[i].GetComponent<ItemObject>().ItemID;
-                itemSpawnWeights[i] = DataManager.GetItem(itemId).SpawnWeight;
-            }
-        }
-
-        // 오브젝트 풀링
-        // 각 오브젝트를 PoolCount 만큼 생성하고 비활성화 한다.
-        private void Pooling()
-        {
-            for (int i = 0; i < Items.Length; i++)
-            {
-                for (int j = 0; j < spawnConfig.PoolCount; j++)
+                for (int count = 0; count < spawnConfig.PoolCount; count++)
                 {
-                    GameObject SpawnItem = Instantiate(Items[i], transform);
-
-                    SpawnItem.SetActive(false);
-                    SpawnItem.GetComponent<Rigidbody>().isKinematic = true;
-                    SpawnItem.transform.localScale = Vector3.one * spawnConfig.FlowItemScale;
-
-                    PooledItems[i * spawnConfig.PoolCount + j] = SpawnItem;
+                    ItemObject item = Instantiate(itemPrefab, transform);
+                    item.GetComponent<Rigidbody>().isKinematic = true;
+                    item.transform.localScale = Vector3.one * spawnConfig.FlowItemScale;
+                    item.gameObject.SetActive(false);
+                    pooledItems.Add(item);
                 }
             }
         }
 
-        // 풀링한 아이템 중 랜덤한 아이템 리턴
-        // SpawnWeight로 종류를 먼저 고르고, 그 종류에서 꺼진 아이템을 꺼낸다
-        private GameObject GetRandomPooledItem()
+        // 항해 중에만 초당 BaseSpawnRate개씩 만든다. 넘친 시간은 남겨 개수를 맞춘다
+        private void Update()
         {
-            float totalWeight = 0f;
-            foreach (float weight in itemSpawnWeights) totalWeight += weight;
+            if (GameManager.Instance.IsPlaying == false) return;
 
-            float pick = Random.Range(0f, totalWeight);
-            for (int i = 0; i < Items.Length; i++)
-            {
-                pick -= itemSpawnWeights[i];
-                if (pick <= 0f) return GetInactiveItem(i);
-            }
-            return GetInactiveItem(Items.Length - 1);
+            spawnTimer += Time.deltaTime;
+            float spawnInterval = 1f / spawnConfig.BaseSpawnRate;
+            if (spawnTimer < spawnInterval) return;
+            spawnTimer -= spawnInterval;
+
+            float[] weights = new float[itemPrefabs.Length];
+            for (int i = 0; i < itemPrefabs.Length; i++) weights[i] = itemPrefabs[i].Row.SpawnWeight;
+            ItemObject itemPrefab = itemPrefabs[WeightedRandom.PickIndex(weights)];
+            ItemObject item = GetInactiveItem(itemPrefab.ItemID);
+            if (item != null) Spawn(item);
         }
 
-        // itemIndex 종류의 꺼진 아이템. 그 종류가 모두 켜져 있으면 null
-        private GameObject GetInactiveItem(int itemIndex)
+        // 잡은 재료. 흐르는 풀 재료는 풀로 돌려보내고 같은 종류의 새 인스턴스를 준다 (풀이 줄지 않아 생성 비율이 유지된다)
+        // 프리팹에서 만들어야 OriginalScale이 풀 크기로 잡히지 않는다. 놓아 둔 재료는 그대로 준다
+        public ItemObject TakeItem(ItemObject item)
         {
-            for (int j = 0; j < spawnConfig.PoolCount; j++)
+            if (pooledItems.Contains(item) == false) return item;
+
+            ReturnItem(item);
+            return Instantiate(GetPrefab(item.ItemID));
+        }
+
+        private void Spawn(ItemObject item)
+        {
+            Vector3 spawnDirection = Random.onUnitSphere;
+            spawnDirection.y = Mathf.Abs(spawnDirection.y);
+            Vector3 startPosition = spawnSphere.position + spawnDirection * SpawnRadius;
+
+            // 함선 중심 방향에서 접선 각도만큼 위로 꺾는다 (sin(접선 각도) = 함선 반지름 / 중심까지 거리)
+            Vector3 toSafeCenter = safeSphere.position - startPosition;
+            float tangentAngle = Mathf.Asin(SafeRadius / toSafeCenter.magnitude);
+            Vector3 upward = Vector3.ProjectOnPlane(Vector3.up, toSafeCenter).normalized;
+            Vector3 moveDirection = Mathf.Cos(tangentAngle) * toSafeCenter.normalized + Mathf.Sin(tangentAngle) * upward;
+
+            // 구 표면에서 출발해 반대편 표면까지 가는 거리
+            float moveDistance = -2f * Vector3.Dot(startPosition - spawnSphere.position, moveDirection);
+            Vector3 endPosition = startPosition + moveDirection * moveDistance;
+
+            item.transform.position = startPosition;
+            item.transform.rotation = Quaternion.identity;
+            item.gameObject.SetActive(true);
+            item.transform.DOMove(endPosition, moveDistance / spawnConfig.FlowSpeed).SetEase(Ease.Linear).OnComplete(() => ReturnItem(item));
+        }
+
+        private void ReturnItem(ItemObject item)
+        {
+            item.transform.DOKill();
+            item.gameObject.SetActive(false);
+        }
+
+        private ItemObject GetInactiveItem(ItemType itemId)
+        {
+            foreach (ItemObject item in pooledItems)
             {
-                GameObject item = PooledItems[itemIndex * spawnConfig.PoolCount + j];
-                // 사용중이지 않으면 가져옴
-                if (item.activeSelf == false) return item;
+                if (item.ItemID == itemId && item.gameObject.activeSelf == false) return item;
             }
             return null;
         }
 
-        // 아이템을 풀로 반환. 집기, 내려놓기에서 바뀐 상태(부모, 크기, 콜라이더, 물리)를 풀링 때 상태로 되돌리고 끈다
-        // 흐름 끝, 터미널 납품처럼 아이템이 사라지는 곳에서 호출한다
-        public void ReturnItem(GameObject item)
+        private ItemObject GetPrefab(ItemType itemId)
         {
-            item.transform.DOKill();
-            item.transform.SetParent(transform);
-            item.transform.localScale = Vector3.one * spawnConfig.FlowItemScale;
-            item.GetComponent<Collider>().enabled = true;
-
-            Rigidbody itemBody = item.GetComponent<Rigidbody>();
-            itemBody.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            itemBody.isKinematic = true;
-
-            item.SetActive(false);
-        }
-        
-        // 잡은 아이템은 풀에서 빠지지 않는다. 풀 개수가 줄지 않아 생성 비율(ItemTable의 SpawnWeight)이 유지된다
-        // 아이템을 잡을 때 호출. 풀 아이템이면 풀로 되돌리고, 같은 종류 프리팹의 새 인스턴스를 player 자식으로 만들어 돌려준다
-        // 풀 인스턴스를 복제하면 꺼진 채로 생기고 OriginalScale(Awake에서 저장)이 풀 크기로 잡히므로 프리팹(Items)에서 복제한다
-        // 풀 아이템이 아니면(바닥에 놓인 복제본) 그대로 돌려준다
-        public GameObject CloneToPooledItem(GameObject item, Transform player)
-        {
-            if (item.transform.parent != transform) return item;
-
-            ItemType itemId = item.GetComponent<ItemObject>().ItemID;
-            ReturnItem(item);
-            return Instantiate(Items[GetItemIndex(itemId)], player);
-        }
-
-        // Items 배열에서 itemId 종류의 위치
-        private int GetItemIndex(ItemType itemId)
-        {
-            for (int i = 0; i < Items.Length; i++)
+            foreach (ItemObject itemPrefab in itemPrefabs)
             {
-                if (Items[i].GetComponent<ItemObject>().ItemID == itemId) return i;
+                if (itemPrefab.ItemID == itemId) return itemPrefab;
             }
-            return -1;
-        }
-        
-        
-        private void Update()
-        {
-            spawnTimer += Time.deltaTime;
-
-            // 생성 간격이 지나면 아이템이 스폰된다. 넘친 시간은 남겨서 초당 생성 개수를 맞춘다
-            float spawnInterval = 1f / spawnConfig.BaseSpawnRate;
-            if (spawnTimer >= spawnInterval)
-            {
-                spawnTimer -= spawnInterval;
-                
-                GameObject spawnItem = GetRandomPooledItem();
-                
-                if (spawnItem != null)
-                {
-                    SpawnItem(spawnItem);
-                    ItemMove(spawnItem);
-                }
-            }
-            
-            
-        }
-
-        private void SpawnItem(GameObject spawnItem)
-        {
-            // 구 표면의 무작위 방향을 고르고, 아래쪽이면 위로 뒤집어 위쪽 반구에서만 생성한다
-            Vector3 spawnDir = Random.onUnitSphere;
-            spawnDir.y = Mathf.Abs(spawnDir.y);
-            Vector3 SpawnPoint = SpawnSphere.transform.position + spawnDir * SpawnSphereRadius;
-
-            spawnItem.transform.position = SpawnPoint;
-            spawnItem.transform.forward = Vector3.forward; // World 기준 Z 방향 바라보게 하기
-            spawnItem.SetActive(true);
-            
-        }
-
-        // 아이템 이동방식
-        // 1. SpawnSphere의 무작위 표면 위치에서 함선 방향으로 이동하되, SafeSphere를 충돌하지 않게 이동한다. (결국 표면 -> 표면 이동)
-        // 2. 근데 둘다 랜덤 표면 위치를 리턴받으면 무조건 SafeSphere를 통과하는 루트도 나옴
-        // 3. 접선 이동해야할듯 (SpawnSphere 랜덤 위치에서 접선 위치로 (탄젠트인가?) Ray를 쏘기..?) 방향만 normalized로 알면 EndPos 알수 있을듯..
-        // 4. 이동 방향은 원뿔 형태의 경로 중 하나로 선택될듯
-        // 5. 원뿔의 수많은 경로 중 하나를 선택하는 기준..? ->
-        // 스폰 위치가 위쪽 반구뿐이므로 항상 위쪽 접선으로 이동한다 (함선 위로 지나간다)
-
-        private void ItemMove(GameObject spawnItem)
-        {
-            // 스폰한 아이템 위치
-            Vector3 startPos = spawnItem.transform.position;
-
-            // 안전지역 구 위치
-            Vector3 safeSpherePos = SafeSphere.transform.position;
-            
-            // 스폰 위치 -> 안전지역 구 위치 (벡터)
-            Vector3 SpawnToSafeDir = safeSpherePos - startPos;
-            
-            // 접선 원뿔의 반각 (sin = 안전지역 구 반지름 / 안전지역 구 중심까지 거리)
-            float tangentAngle = Mathf.Asin(SafeSphereRadius / SpawnToSafeDir.magnitude);
-
-            // SpawnToSafeDir에 수직이면서 위를 향하는 벡터
-            Vector3 SafeToDot = Vector3.ProjectOnPlane(Vector3.up, SpawnToSafeDir).normalized;
-
-            // 안전지역 구 중심 방향에서 tangentAngle만큼 위로 꺾은 접선 방향 (기존: 중심 방향 그대로라 SafeSphere 관통)
-            Vector3 moveDir = Mathf.Cos(tangentAngle) * SpawnToSafeDir.normalized + Mathf.Sin(tangentAngle) * SafeToDot;
-
-            // moveDir로 직진했을 때 SpawnSphere 반대편 표면과 만나는 지점
-            // 시작점이 구 표면 위이므로 이동 거리 = -2 * Dot(구 중심 -> 시작점, moveDir)
-            Vector3 spawnCenterToStart = startPos - SpawnSphere.transform.position;
-            float moveDistance = -2f * Vector3.Dot(spawnCenterToStart, moveDir);
-            Vector3 endPos = startPos + moveDir * moveDistance;
-
-            // 이동 시간 = 이동 거리 / FlowSpeed. Ease.Linear로 처음부터 끝까지 같은 속도로 흐른다 (DOTween 기본값은 점점 느려짐)
-            // 도착하면 비활성화해서 풀로 반환
-            float moveDuration = moveDistance / spawnConfig.FlowSpeed;
-            spawnItem.transform.DOMove(endPos, moveDuration).SetEase(Ease.Linear).OnComplete(() => ReturnItem(spawnItem));
+            return null;
         }
     }
 }

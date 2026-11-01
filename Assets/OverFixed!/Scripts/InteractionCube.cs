@@ -1,82 +1,47 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace OverFixed
 {
-    // InteractionCube 범위 안에 있는 물체의 Tag를 판단하는 건 InteractionCube이,
-    // Tag에 따른 특정 행동을 수행하는 것은 LocalPlayer이 담당한다.
-    // 범위는 콜라이더 없이 boxCenter, boxSize로 정하고 씬 뷰에 기즈모로 그린다
+    // 상호작용 범위. 범위(boxCenter, boxSize) 안에서 상호작용 태그가 붙은 가장 가까운 대상을 찾는다
+    // 대상별 행동은 LocalPlayer, 안내 문구는 InteractionPromptUI가 정한다
     public class InteractionCube : MonoBehaviour
     {
-        [Header("상호작용 박스 세팅설정")]
+        private static readonly string[] InteractableTags = { "Item", "Terminal", "Panel", "Cabinet", "AirLock" };
+
         [SerializeField] private Vector3 boxCenter = Vector3.zero;
-        [SerializeField] private Vector3 boxSize = Vector3.one;    
-        [SerializeField] private Color gizmoColor = Color.green;    
+        [SerializeField] private Vector3 boxSize = Vector3.one;
+        [SerializeField] private Color gizmoColor = Color.green;
 
-        public Action<GameObject> InteractItem;
-        public Action<GameObject> InteractTerminal;
-        public Action<GameObject> InteractPanel;
-        public Action<GameObject> InteractCabinet;
-        public Action<GameObject> InteractionBox;
-        public Action<GameObject> InteractionAirLock;
-
-        private const string Item = "Item";
-        private const string Terminal = "Terminal";
-        private const string Panel = "Panel";
-        private const string Cabinet = "Cabinet";
-        private const string Box = "Box";
-        private const string AirLock = "AirLock";
-        
-        // PlayerController에서 e를 누르면 호출됨
-        public void Interact()
+        public GameObject FindNearestTarget()
         {
-            GameObject target = FindNearestTarget();
-            if (target == null) return;
-
-            if (target.CompareTag(Item)) InteractItem?.Invoke(target);
-            else if (target.CompareTag(Terminal)) InteractTerminal?.Invoke(target);
-            else if (target.CompareTag(Panel)) InteractPanel?.Invoke(target);
-            else if (target.CompareTag(Cabinet)) InteractCabinet?.Invoke(target);
-            else if (target.CompareTag(Box)) InteractionBox?.Invoke(target);
-            else if (target.CompareTag(AirLock)) InteractionAirLock?.Invoke(target);
-        }
-
-        private static bool IsCompareTag(GameObject target)
-        {
-            return target.CompareTag(Item) ||
-                   target.CompareTag(Terminal) ||
-                   target.CompareTag(Panel) ||
-                   target.CompareTag(Cabinet) ||
-                   target.CompareTag(Box) ||
-                   target.CompareTag(AirLock);
-        }
-
-        // 지금 박스 안에 있는 대상 중 가장 가까운 것
-        private GameObject FindNearestTarget()
-        {
-            // 로컬 좌표 -> 월드 좌표
             Vector3 worldCenter = transform.TransformPoint(boxCenter);
-            Vector3 worldHalfSize = Vector3.Scale(boxSize, transform.lossyScale) * 0.5f; // 부모 스케일까지 반영한 크기
-            Collider[] hitList = Physics.OverlapBox(worldCenter, worldHalfSize, transform.rotation);
+            Vector3 worldHalfSize = Vector3.Scale(boxSize, transform.lossyScale) * 0.5f;
 
             GameObject nearest = null;
             float nearestDistance = float.MaxValue;
-
-            foreach (Collider hit in hitList)
+            foreach (Collider hit in Physics.OverlapBox(worldCenter, worldHalfSize, transform.rotation))
             {
-                GameObject target = hit.gameObject;
-                if (IsCompareTag(target) == false) continue;
+                if (IsInteractable(hit.gameObject) == false) continue;
 
-                float distance = Vector3.Distance(worldCenter, target.transform.position); // 범위 중심 기준 거리
+                float distance = Vector3.Distance(worldCenter, hit.transform.position);
                 if (distance < nearestDistance)
                 {
-                    nearest = target;
+                    nearest = hit.gameObject;
                     nearestDistance = distance;
                 }
             }
             return nearest;
         }
-        
+
+        private static bool IsInteractable(GameObject target)
+        {
+            foreach (string interactableTag in InteractableTags)
+            {
+                if (target.CompareTag(interactableTag)) return true;
+            }
+            return false;
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.color = gizmoColor;

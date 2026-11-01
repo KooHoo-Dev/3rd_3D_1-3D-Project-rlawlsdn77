@@ -2,13 +2,12 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // HUD 홀드 진행 막대. LocalPlayer가 알려 주는 진행도(0 ~ 1)만큼 채우고, 진행도가 0이면 숨긴다
-    // 채움은 Fill의 anchorMax.x로 나타낸다 (Fill은 막대 왼쪽 끝에 붙어 anchorMax.x 비율만큼 늘어난다)
+    // HUD 홀드 막대 (에어락 통과). 진행도만큼 Fill의 anchorMax.x를 늘리고, 0이면 숨긴다
     public class HoldBarUI : MonoBehaviour
     {
         [SerializeField] private LocalPlayer localPlayer;
-        [SerializeField] private GameObject holdBar;     // 켜고 끄는 막대 전체
-        [SerializeField] private RectTransform fill;     // 진행도만큼 늘어나는 채움
+        [SerializeField] private GameObject holdBar;
+        [SerializeField] private RectTransform fill;
 
         private void OnEnable()
         {

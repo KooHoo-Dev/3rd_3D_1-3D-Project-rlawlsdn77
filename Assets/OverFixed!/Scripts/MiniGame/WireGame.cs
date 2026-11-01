@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using Study.Utilities;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace OverFixed
 {
     // 전선 잇기: 왼쪽 색 단자를 클릭한 뒤 같은 색의 오른쪽 단자를 클릭해 이으면 성공 1회
-    // 쌍 수는 EventTable의 SuccessCount. 다시 열면 남은 쌍(SuccessCount - 이미 모은 성공 횟수)만 보인다
-    // 단자와 전선은 원본(꺼 둔 템플릿)을 복제해 만들고, 오른쪽 단자는 순서를 섞는다
+    // 쌍 수는 EventTable의 SuccessCount이고, 다시 열면 남은 쌍만 보인다. 오른쪽 단자는 순서를 섞는다
     public class WireGame : MiniGame
     {
         [Header("화면")]
@@ -17,10 +15,7 @@ namespace OverFixed
         [SerializeField] private RectTransform wireLayer;       // 전선을 그리는 곳 (단자 뒤)
         [SerializeField] private Image terminalTemplate;        // 꺼 둔 단자 원본
         [SerializeField] private Image wireTemplate;            // 꺼 둔 전선 원본 (피벗이 왼쪽 가운데)
-        [SerializeField] private TMP_Text resultValue;          // "연결" / "색이 다릅니다"
         [SerializeField] private Color[] wireColors;            // 단자 색. EventTable의 SuccessCount개 이상
-        [SerializeField] private Color successColor = Color.cyan;
-        [SerializeField] private Color missColor = Color.red;
 
         public override EventType EventID => EventType.Wire;
 
@@ -29,13 +24,12 @@ namespace OverFixed
         private readonly List<Image> wires = new List<Image>();
         private readonly List<bool> isConnected = new List<bool>();    // 왼쪽 단자 순서대로
 
-        private int selectedIndex = -1;     // 고른 왼쪽 단자 순서. -1이면 고르지 않았다
+        private int selectedIndex = -1;     // 고른 왼쪽 단자. -1이면 고르지 않았다
         private Image selectedWire;         // 고른 단자에서 마우스를 따라가는 전선
 
         public override void Begin(EventRow eventRow, int successCount)
         {
             base.Begin(eventRow, successCount);
-            resultValue.text = "";
             MakeTerminals(eventRow.SuccessCount - successCount);
         }
 
@@ -73,8 +67,7 @@ namespace OverFixed
             DrawWire(selectedWire, leftTerminals[leftIndex].rectTransform, pointerPosition);
         }
 
-        // 같은 색 오른쪽 단자를 누르면 연결. 그 밖은 고르기를 취소한다
-        // 다른 색 오른쪽 단자면 "색이 다릅니다", 다른 왼쪽 단자면 그 단자로 바꿔 고른다
+        // 같은 색 오른쪽 단자면 연결. 다른 색이면 "색이 다릅니다", 그 밖을 누르면 고르기를 취소하고 그 자리를 다시 고른다
         private void ConnectTerminal(Vector2 pointerPosition)
         {
             int rightIndex = FindTerminal(rightTerminals, pointerPosition);
@@ -88,18 +81,15 @@ namespace OverFixed
                 isConnected[selectedIndex] = true;
                 selectedIndex = -1;
                 selectedWire = null;
-
-                ShowResult("연결", successColor);
-                Succeed();
+                Succeed("연결");
                 return;
             }
 
             CancelSelection();
-            if (rightIndex >= 0) ShowResult("색이 다릅니다", missColor);
+            if (rightIndex >= 0) Miss("색이 다릅니다");
             else SelectTerminal(pointerPosition);
         }
 
-        // 고른 단자의 전선을 거두고 고르기를 취소한다
         private void CancelSelection()
         {
             wires.Remove(selectedWire);
@@ -124,7 +114,7 @@ namespace OverFixed
             Shuffle(colors);
             foreach (Color color in colors) rightTerminals.Add(MakeTerminal(rightColumn, color));
 
-            // 세로 정렬이 바로 자리를 잡아야 첫 프레임부터 단자 위치로 전선을 그릴 수 있다
+            // 첫 프레임부터 단자 위치로 전선을 그릴 수 있게 정렬을 바로 맞춘다
             LayoutRebuilder.ForceRebuildLayoutImmediate(leftColumn);
             LayoutRebuilder.ForceRebuildLayoutImmediate(rightColumn);
         }
@@ -180,12 +170,6 @@ namespace OverFixed
                 int swapIndex = Random.Range(0, index + 1);
                 (colors[index], colors[swapIndex]) = (colors[swapIndex], colors[index]);
             }
-        }
-
-        private void ShowResult(string text, Color color)
-        {
-            resultValue.text = text;
-            resultValue.color = color;
         }
     }
 }

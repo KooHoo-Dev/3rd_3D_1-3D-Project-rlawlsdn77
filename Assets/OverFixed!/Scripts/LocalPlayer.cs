@@ -4,64 +4,100 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // LocalPlayer은 너무 많은 의존성을 가지지 않는다.
-    // 실제 플레이어가 하는 행동만을 담당한다.
+    // 플레이어의 행동: E 상호작용(줍기, 제출, 터미널, 패널, 보관함, 에어락)과 Q 놓기. 입력은 PlayerController가 받는다
     public class LocalPlayer : MonoBehaviour
     {
-        [Header("상호작용 세팅")]
-        [SerializeField] private InteractionCube interactionCube;
+        [Header("든 재료 (카메라 피벗에 붙여 시선을 따라간다)")]
+        [SerializeField] private Transform holdParent;
         [SerializeField] private Vector3 holdOffset = new Vector3(0f, 0f, 2f);
+        [SerializeField] private float holdScale = 0.5f;    // 든 동안 크기 배율 (시야를 가리지 않게)
 
         public ItemObject Item { get; private set; }
 
-        // 홀드 진행도 (0 ~ 1). 0이면 진행 중인 홀드가 없다. HUD 홀드 막대가 구독한다
-        public Action<float> HoldProgressChanged;
-
-        // 재료를 주웠을 때, 장치(터미널, 패널, 에어락)를 썼을 때. 로봇 애니메이션(PlayerAnimator)이 구독한다
-        public Action ItemPickedUp;
-        public Action DeviceUsed;
+        public Action<float> HoldProgressChanged;   // 에어락 통과 진행도 (0 ~ 1, 0이면 끝). HoldBarUI가 구독
+        public Action ItemPickedUp;                 // PlayerAnimator가 구독
+        public Action DeviceUsed;                   // PlayerAnimator가 구독
 
         private PlayerController playerController;
-        private CharacterController characterController; 
+        private CharacterController characterController;
+        private InteractionCube interactionCube;
 
         private void Awake()
         {
-            interactionCube = GetComponentInChildren<InteractionCube>();
             playerController = GetComponent<PlayerController>();
-            characterController = GetComponent<CharacterController>(); 
+            characterController = GetComponent<CharacterController>();
+            interactionCube = GetComponentInChildren<InteractionCube>();
         }
 
-        private void OnEnable()
+        // 범위 안 가장 가까운 대상에 맞는 행동. 안내 문구는 InteractionPromptUI가 같은 규칙으로 고른다
+        public void Interact()
         {
-            interactionCube.InteractItem += TakeItem;
-            interactionCube.InteractTerminal += AccessTerminal;
-            interactionCube.InteractPanel += FixPanel;
-            interactionCube.InteractCabinet += OpenCabinet;
-            interactionCube.InteractionBox += OpenBox;
-            interactionCube.InteractionAirLock += OpenAirLock;
+            GameObject target = interactionCube.FindNearestTarget();
+            if (target == null) return;
+
+            if (target.TryGetComponent(out ItemObject item)) TakeItem(item);
+            else if (target.TryGetComponent(out Terminal terminal)) UseTerminal(terminal);
+            else if (target.TryGetComponent(out Panel panel)) FixPanel(panel);
+            else if (target.TryGetComponent(out Cabinet cabinet)) cabinet.ToggleDoors();
+            else if (target.TryGetComponent(out AirLock airLock)) StartCoroutine(PassAirLock(airLock));
         }
 
-        private void OnDisable()
+        public void LeaveItem()
         {
-            interactionCube.InteractItem -= TakeItem;
-            interactionCube.InteractTerminal -= AccessTerminal;
-            interactionCube.InteractPanel -= FixPanel;
-            interactionCube.InteractCabinet -= OpenCabinet;
-            interactionCube.InteractionBox -= OpenBox;
-            interactionCube.InteractionAirLock -= OpenAirLock;
+            if (Item == null) return;
+
+            Item.transform.SetParent(null);
+            Item.transform.localScale = Item.OriginalScale;
+            Item.transform.position = transform.position + transform.forward * holdOffset.z;
+            Item.GetComponent<Collider>().enabled = true;
+            // 선외에서는 놓은 자리에 떠 있게 한다
+            if (Item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = playerController.MoveState == MoveState.Exterior;
+            Item = null;
         }
 
-        private void OpenAirLock(GameObject airlock)
+        private void TakeItem(ItemObject item)
         {
+            if (Item != null) return;
+
+            Item = SpawnManager.Instance.TakeItem(item);
+            Item.GetComponent<Collider>().enabled = false;
+            if (Item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = true;
+            Item.transform.SetParent(holdParent);
+            Item.transform.localPosition = holdOffset;
+            Item.transform.localRotation = Quaternion.identity;
+            Item.transform.localScale = Item.OriginalScale * holdScale;
+            ItemPickedUp?.Invoke();
+        }
+
+        // 빈손이면 터미널 화면, 재료를 들었으면 제출 (맞는 주문이 없으면 손에 남는다)
+        private void UseTerminal(Terminal terminal)
+        {
+            if (Item == null)
+            {
+                DeviceUsed?.Invoke();
+                terminal.OpenTerminal();
+                return;
+            }
+            if (OrderManager.Instance.Board.Submit(Item.ItemID) == false) return;
+
+            Destroy(Item.gameObject);
+            Item = null;
             DeviceUsed?.Invoke();
-            StartCoroutine(PassAirLock(airlock.GetComponent<AirLock>()));
         }
 
-        // 감압(가압) 시간 동안 이동과 상호작용을 잠그고 홀드 막대를 채운 뒤,
-        // 선내면 선외로, 선외면 선내로 옮기고 이동 상태를 바꾼다
+        private void FixPanel(Panel panel)
+        {
+            if (panel.IsAccident == false) return;
+
+            DeviceUsed?.Invoke();
+            panel.OpenMiniGame();
+        }
+
+        // 통과 시간 동안 조작을 잠그고 막대를 채운 뒤 반대편으로 옮긴다
         private IEnumerator PassAirLock(AirLock airLock)
         {
-            playerController.SetControlLock(true);
+            DeviceUsed?.Invoke();
+            playerController.LockControl();
 
             float elapsedTime = 0f;
             while (elapsedTime < airLock.PassTime)
@@ -83,94 +119,7 @@ namespace OverFixed
             }
 
             HoldProgressChanged?.Invoke(0f);
-
-            // 감압 중에 항해가 끝났으면(정산, 게임오버 화면) 그 화면이 건 잠금을 풀지 않는다
-            if (GameManager.Instance.IsPlaying) playerController.SetControlLock(false);
-        }
-
-        private void OpenBox(GameObject box)
-        {
-        }
-        
-        private void TakeItem(GameObject item)
-        {
-            if (Item != null) return;
-            if (item.TryGetComponent(out ItemObject _) == false) return; // 재료 종류가 없는 물건은 들지 않는다
-
-            // 흐르는 풀 아이템은 풀로 돌려보내고 같은 종류의 새 인스턴스를 든다. 바닥에 놓인 아이템은 그대로 든다
-            GameObject heldItem = SpawnManager.Instance.CloneToPooledItem(item, transform);
-
-            heldItem.GetComponent<Collider>().enabled = false;
-            if (heldItem.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = true;
-            heldItem.transform.SetParent(transform);    // 로컬 플레이어의 자식으로 아이템이 들어간다
-            heldItem.transform.localPosition = holdOffset; // 위치는 holdOffset만큼 떨어진 위치
-            heldItem.transform.localRotation = Quaternion.identity; // 회전은 고정
-
-            ItemObject itemObject = heldItem.GetComponent<ItemObject>();
-            heldItem.transform.localScale = itemObject.OriginalScale;
-
-            // 줍은 아이템을 플레이어의 아이템으로 등록
-            Item = itemObject;
-            ItemPickedUp?.Invoke();
-        }
-        
-        public void LeaveItem()
-        {
-            if (Item == null) return;
-
-            Item.transform.SetParent(null);
-            Item.transform.position = transform.position + transform.forward * holdOffset.z;
-            Item.GetComponent<Collider>().enabled = true;
-            if (Item.TryGetComponent(out Rigidbody itemBody))
-            {
-                // 선외에서는 아이템을 잡고 놓으면 놓은 자리에 떠 있게 한다
-                itemBody.isKinematic = playerController.MoveState == MoveState.Exterior;
-            }
-
-            // 플레이어의 아이템을 비움
-            Item = null;
-        }
-
-        // 터미널과 상호작용. 재료를 들고 있으면 제출, 빈손이면 터미널 화면을 연다
-        private void AccessTerminal(GameObject terminal)
-        {
-            Terminal targetTerminal = terminal.GetComponent<Terminal>();
-            if (Item == null)
-            {
-                DeviceUsed?.Invoke();
-                targetTerminal.AccessTerminal();
-                return;
-            }
-
-            // 맞는 주문이 없으면 받지 않고 손에 남는다
-            if (targetTerminal.SubmitItem(Item) == false) return;
-
-            Destroy(Item.gameObject);
-            Item = null;
-            DeviceUsed?.Invoke();
-        }
-
-        // 패널 조작하기. 사고가 없으면 반응하지 않는다
-        private void FixPanel(GameObject panel)
-        {
-            Panel targetPanel = panel.GetComponent<Panel>();
-            if (targetPanel.IsAccident == false) return;
-
-            DeviceUsed?.Invoke();
-            targetPanel.FixPanel();
-        }
-        
-        private void OpenCabinet(GameObject cabinet)
-        {
-            // 1. 플레이어가 아이템을 들고 있을 시 그 아이템을 보유 아이템 목록에 넣는다
-            // 2. 플레이어가 아이템을 들고 있지 않을 시 보유 아이템 목록 UI를 띄운다. (아이템 클릭 시 그 아이템을 손에 들게 됨)
-            // 3. 보유 아이템 목록의 아이템은 터미널의 제출 아이템과 연동되지 않는다 (터미널 제출 아이템은 직접 손으로 들고 가야함)
-            // 4. 보유 아이템 목록은 다음 행성 이동시에도 아이템이 사라지지 않고 남아있다.
-            // 5. 터미널에서의 OrderBoard에서 캐비넷 내부의 아이템을 제출 가능하다.
-            // 6. 터미널에서의 
-            
-            // interactionCube 안에 상호작용 할 시 OpenCabinet 한다.
-            cabinet.GetComponent<Cabinet>().OpenCabinet();    
+            playerController.UnlockControl();
         }
     }
 }

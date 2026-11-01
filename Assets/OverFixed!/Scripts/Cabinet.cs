@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace OverFixed
 {
+    // 보관함. E로 양쪽 문을 열고 닫는다 (보관 기능은 범위 밖)
     public class Cabinet : MonoBehaviour
     {
-        [SerializeField] private Transform LeftDoor;
-        [SerializeField] private Transform RightDoor;
-        
+        [SerializeField] private Transform leftDoor;
+        [SerializeField] private Transform rightDoor;
         [SerializeField] private float openDistance = 1f;
         [SerializeField] private float openDuration = 3f;
 
@@ -18,23 +18,20 @@ namespace OverFixed
 
         private void Awake()
         {
-            leftClosedPosition = LeftDoor.localPosition;
-            rightClosedPosition = RightDoor.localPosition;
+            leftClosedPosition = leftDoor.localPosition;
+            rightClosedPosition = rightDoor.localPosition;
         }
 
-        // 닫힌 위치 기준 부모 로컬 축으로 이동 
-        public void OpenCabinet()
+        // 닫힌 위치에서 부모 로컬 좌우로 연다. 움직이는 동안은 받지 않는다
+        public void ToggleDoors()
         {
             if (isMoving) return;
 
             isOpen = isOpen == false;
             isMoving = true;
-
-            Vector3 leftTarget = isOpen ? leftClosedPosition + Vector3.right * openDistance : leftClosedPosition;
-            Vector3 rightTarget = isOpen ? rightClosedPosition + Vector3.left * openDistance : rightClosedPosition;
-
-            LeftDoor.DOLocalMove(leftTarget, openDuration);
-            RightDoor.DOLocalMove(rightTarget, openDuration).OnComplete(() => isMoving = false);
+            Vector3 openOffset = isOpen ? Vector3.right * openDistance : Vector3.zero;
+            leftDoor.DOLocalMove(leftClosedPosition + openOffset, openDuration);
+            rightDoor.DOLocalMove(rightClosedPosition - openOffset, openDuration).OnComplete(() => isMoving = false);
         }
     }
 }

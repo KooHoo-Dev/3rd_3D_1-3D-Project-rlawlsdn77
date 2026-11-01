@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 탭 전환. 탭 버튼을 누르면 같은 순서의 본문만 켜고, 그 탭의 밑줄과 글자색을 선택 표시로 바꾼다
+    // 탭 전환. 탭 버튼을 누르면 같은 순서의 본문만 켜고 그 탭의 밑줄과 글자를 선택 표시로 바꾼다
     // tabButtons, tabBodies, tabUnderlines, tabLabels는 같은 순서로 넣는다
     public class UITabGroup : MonoBehaviour
     {
@@ -26,7 +26,7 @@ namespace OverFixed
             SelectTab(0);
         }
 
-        public void SelectTab(int tabIndex)
+        private void SelectTab(int tabIndex)
         {
             for (int index = 0; index < tabButtons.Length; index++)
             {

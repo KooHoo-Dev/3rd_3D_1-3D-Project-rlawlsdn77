@@ -6,6 +6,6 @@ namespace OverFixed
     public class CreditConfig : ScriptableObject
     {
         [Header("크레딧")]
-        [SerializeField] public int StartCredit = 100;
+        public int StartCredit = 100;               // 새 게임 시작 값
     }
 }

@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using Study.Utilities;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 순서 입력: 화면에 뜬 방향키를 순서대로 누른다 (방향키와 WASD 둘 다 받는다). 한 줄을 다 맞추면 성공 1회
-    // 틀리면 그 줄을 처음부터. 한 줄의 길이와 같은 키 최대 수는 MiniGameConfig의 SequenceLength, SequenceMaxSameKey
+    // 순서 입력: 화면에 뜬 방향키를 순서대로 누른다 (방향키와 WASD). 한 줄을 다 맞추면 성공 1회, 틀리면 그 줄을 처음부터
     // 칸은 cellTemplate을 복제해 만들고, 칸 안의 화살표(위를 가리키는 그림)를 돌려 방향을 보인다
     public class SequenceGame : MiniGame
     {
@@ -27,13 +25,10 @@ namespace OverFixed
 
         [Header("화면")]
         [SerializeField] private RectTransform row;         // 칸이 들어가는 줄 (가로 정렬)
-        [SerializeField] private Image cellTemplate;        // 꺼 둔 칸 원본. 자식 Arrow가 화살표
-        [SerializeField] private TMP_Text resultValue;      // "성공" / "틀렸습니다 · 처음부터"
+        [SerializeField] private Image cellTemplate;        // 꺼 둔 칸 원본. 자식이 화살표
         [SerializeField] private Color pendingColor = Color.gray;   // 아직 누를 차례가 아닌 칸
         [SerializeField] private Color currentColor = Color.white;  // 지금 누를 칸
         [SerializeField] private Color doneColor = Color.cyan;      // 맞춘 칸
-        [SerializeField] private Color successColor = Color.cyan;
-        [SerializeField] private Color missColor = Color.red;
 
         public override EventType EventID => EventType.Sequence;
 
@@ -44,7 +39,6 @@ namespace OverFixed
         public override void Begin(EventRow eventRow, int successCount)
         {
             base.Begin(eventRow, successCount);
-            resultValue.text = "";
             MakeRow();
         }
 
@@ -67,7 +61,7 @@ namespace OverFixed
             if (direction != sequence[inputIndex])
             {
                 inputIndex = 0;
-                ShowResult("틀렸습니다 · 처음부터", missColor);
+                Miss("틀렸습니다 · 처음부터");
                 DrawCells();
                 return;
             }
@@ -79,13 +73,12 @@ namespace OverFixed
                 return;
             }
 
-            // 줄을 다 맞추면 새 줄을 만든 뒤 알린다 (마지막 성공이면 알림을 받은 화면이 닫히며 칸을 지운다)
-            ShowResult("성공", successColor);
+            // 새 줄을 만든 뒤 알린다 (마지막 성공이면 알림을 받은 화면이 닫히며 칸을 지운다)
             MakeRow();
-            Succeed();
+            Succeed("성공");
         }
 
-        // 새 줄: SequenceLength개의 방향을 뽑되 같은 방향은 SequenceMaxSameKey개까지만
+        // SequenceLength개의 방향을 뽑되 같은 방향은 SequenceMaxSameKey개까지만
         private void MakeRow()
         {
             sequence.Clear();
@@ -129,12 +122,6 @@ namespace OverFixed
         {
             foreach (Image cell in cells) Destroy(cell.gameObject);
             cells.Clear();
-        }
-
-        private void ShowResult(string text, Color color)
-        {
-            resultValue.text = text;
-            resultValue.color = color;
         }
     }
 }

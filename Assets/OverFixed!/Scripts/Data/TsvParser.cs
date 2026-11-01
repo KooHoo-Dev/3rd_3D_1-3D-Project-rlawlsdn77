@@ -4,8 +4,7 @@ using System.Globalization;
 
 namespace OverFixed
 {
-    // Tsv 파서 (열 구분은 탭)
-    // 첫 줄은 열 이름 (코드가 칸을 찾는 키). #으로 시작하는 줄은 사람이 읽는 한글 설명 줄이라 건너뛴다
+    // TSV 파서 (열 구분은 탭). 첫 줄은 열 이름(코드가 칸을 찾는 키)이고, #으로 시작하는 한글 설명 줄은 건너뛴다
     public static class TsvParser
     {
         public static List<TRow> ParseRows<TRow>(string tsvText, Func<Dictionary<string, string>, TRow> fromCells)
@@ -58,16 +57,6 @@ namespace OverFixed
             return list;
         }
 
-        public static List<float> ToFloatList(string raw)
-        {
-            return ToList(raw).ConvertAll<float>(ToFloat);
-        }
-
-        public static List<T> ToEnumList<T>(string raw) where T : struct, Enum
-        {
-            return ToList(raw).ConvertAll<T>(ToEnum<T>);
-        }
-
         // "Scrap:2|Crystal:1" → [(Scrap, 2), (Crystal, 1)]
         public static List<ItemCount> ToItemCounts(string raw)
         {
@@ -78,18 +67,6 @@ namespace OverFixed
                 countList.Add(new ItemCount { ItemID = ToEnum<ItemType>(pair[0].Trim()), Count = ToInt(pair[1].Trim()) });
             }
             return countList;
-        }
-
-        // "Scrap:3;Fuel:1" → [(Scrap, 3), (Fuel, 1)]
-        public static List<ItemWeight> ToItemWeights(string raw)
-        {
-            var weightList = new List<ItemWeight>();
-            foreach (string part in ToList(raw))
-            {
-                string[] pair = part.Split(':');
-                weightList.Add(new ItemWeight { ItemID = ToEnum<ItemType>(pair[0].Trim()), Weight = ToFloat(pair[1].Trim()) });
-            }
-            return weightList;
         }
     }
 }

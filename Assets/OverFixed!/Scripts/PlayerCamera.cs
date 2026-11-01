@@ -2,23 +2,18 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 플레이어 카메라. 10/29부터 1인칭 (피벗을 로봇 눈높이에 두고 카메라를 피벗 위치에 둔다. 이름은 숄더뷰 시절 그대로)
-    // 플레이어(좌우 회전, PlayerController) → 카메라 피벗(상하 회전) → 카메라(피벗의 자식)
+    // 1인칭 카메라. 플레이어(좌우 회전) → 카메라 피벗(상하 회전) → 카메라
+    // 머리(상호작용 범위가 붙어 있음)는 화면 중앙이 가리키는 지점을 본다
     [RequireComponent(typeof(PlayerController))]
-    public class ShoulderCamera : MonoBehaviour
+    public class PlayerCamera : MonoBehaviour
     {
-        [Header("카메라 (피벗은 플레이어의 자식, 카메라는 피벗의 자식. 위치는 씬에서 조절)")]
         [SerializeField] private Transform cameraPivot;
         [SerializeField] private Transform playerHead;
-        [SerializeField] private Camera playerCamera; 
-
-        [Header("조준")]
+        [SerializeField] private Camera playerCamera;
         [SerializeField] private float maxAimDistance = 30f;
 
-        // 화면 중앙이 가리키는 지점. 로봇의 머리 IK(PlayerAnimator)도 이곳을 본다
-        public Vector3 AimPoint { get; private set; }
+        public Vector3 AimPoint { get; private set; }   // 화면 중앙이 가리키는 지점. 로봇 머리 IK(PlayerAnimator)도 여기를 본다
 
-        // 아래는 내부변수들
         private PlayerController playerController;
 
         private void Awake()
@@ -26,20 +21,17 @@ namespace OverFixed
             playerController = GetComponent<PlayerController>();
         }
 
-        // 플레이어 이동과 회전(Update)이 끝난 뒤에 카메라를 맞춰야 떨리지 않는다
+        // 플레이어 이동·회전(Update)이 끝난 뒤에 맞춰야 떨리지 않는다
         private void LateUpdate()
         {
-            // 피벗을 중심으로 상하 회전. 카메라는 피벗의 자식이라 에디터에서 둔 자리 그대로 같이 돈다
             cameraPivot.localRotation = Quaternion.Euler(playerController.VerticalLookAngle, 0f, 0f);
 
-            // 머리는 화면 중앙이 가리키는 지점을 바라본다
             AimPoint = FindAimPoint();
             Vector3 lookDirection = AimPoint - playerHead.position;
             if (lookDirection.sqrMagnitude > 0.0001f) playerHead.rotation = Quaternion.LookRotation(lookDirection, transform.up);
         }
 
-        // 화면 중앙에서 앞으로 레이를 쏴서 처음 맞는 지점. 없으면 maxAimDistance 거리의 점
-        // 플레이어 자신(손에 든 물건 포함), 트리거, 카메라와 머리 사이에 있는 것은 건너뛴다
+        // 화면 중앙에서 쏜 레이가 처음 맞는 지점. 플레이어 자신, 트리거, 머리보다 가까운 것은 건너뛰고 없으면 maxAimDistance 거리
         private Vector3 FindAimPoint()
         {
             Ray centerRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
@@ -49,8 +41,7 @@ namespace OverFixed
             float nearestDistance = maxAimDistance;
             foreach (RaycastHit hit in Physics.RaycastAll(centerRay, maxAimDistance, Physics.AllLayers, QueryTriggerInteraction.Ignore))
             {
-                if (hit.collider.transform.IsChildOf(transform)) continue;
-                if (hit.distance <= headDistance) continue;
+                if (hit.collider.transform.IsChildOf(transform) || hit.distance <= headDistance) continue;
                 if (hit.distance < nearestDistance)
                 {
                     nearestDistance = hit.distance;

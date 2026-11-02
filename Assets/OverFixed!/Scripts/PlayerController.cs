@@ -60,12 +60,6 @@ namespace OverFixed
                 if (SimpleInput.GetKeyDown(Key.E)) localPlayer.Interact();
                 if (SimpleInput.GetKeyDown(Key.Q)) localPlayer.LeaveItem();
             }
-
-#if UNITY_EDITOR
-            // 디버그: 1 선내/선외 전환, 2 제트 추진 해금 전환
-            if (SimpleInput.GetKeyDown(Key.Digit1)) SetMoveState(MoveState == MoveState.Interior ? MoveState.Exterior : MoveState.Interior);
-            if (SimpleInput.GetKeyDown(Key.Digit2)) IsJetUnlocked = IsJetUnlocked == false;
-#endif
         }
 
         // 에어락을 지날 때. 이전 상태의 속도는 이어가지 않는다

@@ -14,7 +14,7 @@ namespace OverFixed
         [SerializeField] private RectTransform zone;        // 가운데 성공 구간 (막대의 자식)
         [SerializeField] private RectTransform cursor;      // 움직이는 토글 (막대의 자식)
 
-        public override EventType EventID => EventType.TimingBar;
+        public override AccidentType AccidentID => AccidentType.TimingBar;
 
         private float movedTime;        // 토글이 왼쪽 끝에서 출발한 뒤 지난 시간
         private float missLockTime;     // Space를 다시 받기까지 남은 시간
@@ -24,9 +24,9 @@ namespace OverFixed
         private float ZoneMin => 0.5f - miniGameConfig.TimingZoneWidth * 0.5f;
         private float ZoneMax => 0.5f + miniGameConfig.TimingZoneWidth * 0.5f;
 
-        public override void Begin(EventRow eventRow, int successCount)
+        public override void Begin(AccidentRow accidentRow, int successCount)
         {
-            base.Begin(eventRow, successCount);
+            base.Begin(accidentRow, successCount);
             zone.anchorMin = new Vector2(ZoneMin, 0f);
             zone.anchorMax = new Vector2(ZoneMax, 1f);
             movedTime = 0f;

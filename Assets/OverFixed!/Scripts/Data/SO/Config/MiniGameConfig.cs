@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 미니게임 종류별 조절값. 종류마다 같은 열(제한시간, 성공 횟수, 감소량)은 EventTable
+    // 미니게임 종류별 조절값. 종류마다 같은 열(제한시간, 성공 횟수, 감소량)은 AccidentTable
     [CreateAssetMenu(menuName = "OverFixed/MiniGameConfig")]
     public class MiniGameConfig : ScriptableObject
     {

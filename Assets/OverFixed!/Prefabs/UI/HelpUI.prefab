@@ -4479,9 +4479,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.UIButtonSetActive
   links:
-  - Button: {fileID: 5230168188895723128}
-    Target: {fileID: 5962759297155295934}
-    IsActive: 0
+  - button: {fileID: 5230168188895723128}
+    target: {fileID: 5962759297155295934}
+    isActive: 0
 --- !u!1 &4561287928898875295
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,8 +1,6 @@
 using System;
 using Jay;
-using Study.Utilities;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 namespace OverFixed
@@ -85,10 +83,6 @@ namespace OverFixed
 
         private void Update()
         {
-#if UNITY_EDITOR
-            // 디버그: 0 키로 주문 성공만큼 안정도 회복
-            if (SimpleInput.GetKeyDown(Key.Digit0)) ChangeStability(coreConfig.OrderSuccessRecovery);
-#endif
             if (IsPlaying == false) return;
 
             // 안정도는 초당 BaseDecay씩 줄고, 0%가 되면 ChangeStability가 게임오버를 낸다

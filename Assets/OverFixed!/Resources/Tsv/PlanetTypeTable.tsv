@@ -1,0 +1,7 @@
+﻿PlanetTypeID	Name	TrendDesc	BenefitDesc	OrderItemWeights	OrderRewardRate	OrderTimeRate	ModuleCap	MaintenanceEffectType	MaintenanceEffectValue
+#행성 종류 ID	이름	주문 경향 (후보 카드)	도착 후 정비 혜택 (후보 카드. 모듈 혜택은 모듈이 생길 때까지 "없음", 종류·값은 남김)	주문 재료 비중 배율 (재료:배율을 |로 연결, 빈 칸 = 고르게)	주문 보상 배율	주문 제한시간 배율	모듈 상한 (지금 안 씀)	정비 혜택 종류	정비 혜택 값 (할인율 또는 환불 비율)
+Mining	광산 행성	고철이 들어간 주문이 자주 나옴	없음	Scrap:2	1	1	6	RepairDiscount	0.3
+Crystal	결정 행성	크리스탈이 들어간 주문이 자주 나오고 주문 보상 +30%	없음	Crystal:2	1.3	1	4	None	0
+Industry	공업 행성	재료가 고르게 섞임	없음		1	1	8	ModuleDiscount	0.3
+Research	연구 행성	연료 셀이 들어간 주문이 자주 나옴	안정화 물질 30% 할인	Fuel:2	1	1	6	StabilizerDiscount	0.3
+Trade	교역 행성	주문 보상 +20%, 제한시간 20% 단축	없음		1.2	0.8	5	RefundRate	0.8

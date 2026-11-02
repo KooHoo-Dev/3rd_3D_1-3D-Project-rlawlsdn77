@@ -49,7 +49,7 @@ namespace OverFixed
                 : "코어 안정도가 0%가 되었습니다";
             voyageCountValue.text = gameManager.CompletedVoyageCount + "회";
             totalCreditValue.text = gameManager.TotalEarnedCredit.ToString();
-            recordValue.text = "항해 " + gameManager.Record.BestVoyageCount + "회 · " + gameManager.Record.BestTotalCredit + " 크레딧";
+            recordValue.text = "항해 " + gameManager.Record.BestVoyageCount + "회 · " + UIText.ToCredit(gameManager.Record.BestTotalCredit);
             newBestMark.SetActive(gameManager.IsNewRecord);
             gameOverPanel.SetActive(true);
         }

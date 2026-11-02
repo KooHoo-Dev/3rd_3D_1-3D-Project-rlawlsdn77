@@ -705,8 +705,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.TitleUI
   startButton: {fileID: 1264578152}
   quitButton: {fileID: 1264578151}
-  recordValue: {fileID: 1264578150}
-  totalCreditValue: {fileID: 1264578149}
+  recordVoyageValue: {fileID: 1264578150}
+  recordCreditValue: {fileID: 1264578149}
 --- !u!1001 &1986654618
 PrefabInstance:
   m_ObjectHideFlags: 0

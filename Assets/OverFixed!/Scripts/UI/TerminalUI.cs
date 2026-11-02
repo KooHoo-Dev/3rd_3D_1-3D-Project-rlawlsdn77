@@ -10,7 +10,7 @@ namespace OverFixed
     public class TerminalUI : MonoBehaviour
     {
         [Serializable]
-        private class OrderRowView
+        private class OrderSlotView
         {
             public TMP_Text itemsValue;     // "고철 1/2 · 크리스탈 0/1". 빈 칸이면 "새 주문"
             public TMP_Text timeValue;      // 빈 칸이면 새 주문까지 남은 시간
@@ -35,7 +35,7 @@ namespace OverFixed
         [SerializeField] private TMP_Text stabilityValue;
 
         [Header("주문 보드 (OrderBoard의 칸 순서대로)")]
-        [SerializeField] private OrderRowView[] orderRows;
+        [SerializeField] private OrderSlotView[] orderSlots;
 
         [Header("할당량 납부")]
         [SerializeField] private TMP_Text remainingQuotaValue;
@@ -90,20 +90,20 @@ namespace OverFixed
         private void DrawOrders()
         {
             OrderBoard board = orderManager.Board;
-            for (int slotIndex = 0; slotIndex < orderRows.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < orderSlots.Length; slotIndex++)
             {
-                OrderRowView orderRow = orderRows[slotIndex];
+                OrderSlotView orderSlot = orderSlots[slotIndex];
                 ActiveOrder order = board.Orders[slotIndex];
                 if (order == null)
                 {
-                    orderRow.itemsValue.text = "새 주문";
-                    orderRow.timeValue.text = Mathf.CeilToInt(board.GetRefillTime(slotIndex)) + "초";
-                    orderRow.rewardValue.text = "";
+                    orderSlot.itemsValue.text = "새 주문";
+                    orderSlot.timeValue.text = UIText.ToSeconds(board.GetRefillTime(slotIndex));
+                    orderSlot.rewardValue.text = "";
                     continue;
                 }
-                orderRow.itemsValue.text = UIText.ToOrderItems(order);
-                orderRow.timeValue.text = Mathf.CeilToInt(order.RemainingTime) + "초";
-                orderRow.rewardValue.text = order.Row.Reward + " 크레딧";
+                orderSlot.itemsValue.text = UIText.ToOrderItems(order);
+                orderSlot.timeValue.text = UIText.ToSeconds(order.RemainingTime);
+                orderSlot.rewardValue.text = UIText.ToCredit(order.Row.Reward);
             }
         }
 
@@ -116,7 +116,7 @@ namespace OverFixed
             quotaCreditValue.text = gameManager.Credit.ToString();
             payAmountValue.text = payAmount.ToString();
             payButton.interactable = payAmount > 0;
-            payLabel.text = gameManager.IsQuotaPaid ? "완납" : payAmount + " 크레딧 납부";
+            payLabel.text = gameManager.IsQuotaPaid ? "완납" : UIText.ToCredit(payAmount) + " 납부";
         }
 
         private void PayQuota()

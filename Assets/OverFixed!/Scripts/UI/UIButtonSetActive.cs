@@ -10,9 +10,9 @@ namespace OverFixed
         [Serializable]
         public class Link
         {
-            public Button Button;
-            public GameObject Target;
-            public bool IsActive;   // true = 켜기, false = 끄기
+            public Button button;
+            public GameObject target;
+            public bool isActive;   // true = 켜기, false = 끄기
         }
 
         [SerializeField] private Link[] links;
@@ -21,7 +21,7 @@ namespace OverFixed
         {
             foreach (Link link in links)
             {
-                link.Button.onClick.AddListener(() => link.Target.SetActive(link.IsActive));
+                link.button.onClick.AddListener(() => link.target.SetActive(link.isActive));
             }
         }
     }

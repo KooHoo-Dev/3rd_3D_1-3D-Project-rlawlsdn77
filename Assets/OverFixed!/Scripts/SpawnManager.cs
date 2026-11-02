@@ -49,7 +49,7 @@ namespace OverFixed
             spawnTimer -= spawnInterval;
 
             float[] weights = new float[itemPrefabs.Length];
-            for (int i = 0; i < itemPrefabs.Length; i++) weights[i] = itemPrefabs[i].Row.SpawnWeight;
+            for (int index = 0; index < itemPrefabs.Length; index++) weights[index] = itemPrefabs[index].Row.SpawnWeight;
             ItemObject itemPrefab = itemPrefabs[WeightedRandom.PickIndex(weights)];
             ItemObject item = GetInactiveItem(itemPrefab.ItemID);
             if (item != null) Spawn(item);

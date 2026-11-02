@@ -17,7 +17,5 @@ MonoBehaviour:
   WarningThreshold: 30
   OrderSuccessRecovery: 2
   OrderFailPenalty: 5
-  ModuleDestroyPenalty: 10
   StabilizerPrice: 60
   StabilizerRecovery: 10
-  StabCellRecovery: 12

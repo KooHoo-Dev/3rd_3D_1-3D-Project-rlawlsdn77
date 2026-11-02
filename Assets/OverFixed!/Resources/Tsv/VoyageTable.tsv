@@ -1,4 +1,4 @@
-﻿VoyageIndex	QuotaBase	VoyageTime	ArrivalReward	BaseDecay	EventIntervalMin	EventIntervalMax	BadZoneWeight
+﻿VoyageIndex	QuotaBase	VoyageTime	ArrivalReward	BaseDecay	AccidentIntervalMin	AccidentIntervalMax	BadZoneWeight
 #항해 번호	할당량 (크레딧)	항해 시간 (초)	도착 보상 (크레딧)	초당 안정도 감소 (%)	사고 간격 최소 (초)	사고 간격 최대 (초)	불리한 지대 가중치 배율
 1	200	240	50	0.02	50	80	1
 2	250	255	65	0.0225	47.5	75	1.1

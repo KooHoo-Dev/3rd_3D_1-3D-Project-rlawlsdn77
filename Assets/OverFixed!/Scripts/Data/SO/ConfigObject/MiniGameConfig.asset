@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.MiniGameConfig
   TimingCursorSpeed: 1
   TimingZoneWidth: 0.2
+  TimingMissLockTime: 0.5
   SequenceLength: 6
   SequenceMaxSameKey: 3

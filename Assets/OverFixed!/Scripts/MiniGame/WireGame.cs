@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace OverFixed
 {
     // 전선 잇기: 왼쪽 색 단자를 클릭한 뒤 같은 색의 오른쪽 단자를 클릭해 이으면 성공 1회
-    // 쌍 수는 EventTable의 SuccessCount이고, 다시 열면 남은 쌍만 보인다. 오른쪽 단자는 순서를 섞는다
+    // 쌍 수는 AccidentTable의 SuccessCount이고, 다시 열면 남은 쌍만 보인다. 오른쪽 단자는 순서를 섞는다
     public class WireGame : MiniGame
     {
         [Header("화면")]
@@ -15,9 +15,9 @@ namespace OverFixed
         [SerializeField] private RectTransform wireLayer;       // 전선을 그리는 곳 (단자 뒤)
         [SerializeField] private Image terminalTemplate;        // 꺼 둔 단자 원본
         [SerializeField] private Image wireTemplate;            // 꺼 둔 전선 원본 (피벗이 왼쪽 가운데)
-        [SerializeField] private Color[] wireColors;            // 단자 색. EventTable의 SuccessCount개 이상
+        [SerializeField] private Color[] wireColors;            // 단자 색. AccidentTable의 SuccessCount개 이상
 
-        public override EventType EventID => EventType.Wire;
+        public override AccidentType AccidentID => AccidentType.Wire;
 
         private readonly List<Image> leftTerminals = new List<Image>();
         private readonly List<Image> rightTerminals = new List<Image>();
@@ -27,10 +27,10 @@ namespace OverFixed
         private int selectedIndex = -1;     // 고른 왼쪽 단자. -1이면 고르지 않았다
         private Image selectedWire;         // 고른 단자에서 마우스를 따라가는 전선
 
-        public override void Begin(EventRow eventRow, int successCount)
+        public override void Begin(AccidentRow accidentRow, int successCount)
         {
-            base.Begin(eventRow, successCount);
-            MakeTerminals(eventRow.SuccessCount - successCount);
+            base.Begin(accidentRow, successCount);
+            MakeTerminals(accidentRow.SuccessCount - successCount);
         }
 
         public override void End()

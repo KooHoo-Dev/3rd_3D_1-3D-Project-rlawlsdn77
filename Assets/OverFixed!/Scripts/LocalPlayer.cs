@@ -37,7 +37,7 @@ namespace OverFixed
 
             if (target.TryGetComponent(out ItemObject item)) TakeItem(item);
             else if (target.TryGetComponent(out Terminal terminal)) UseTerminal(terminal);
-            else if (target.TryGetComponent(out Panel panel)) FixPanel(panel);
+            else if (target.TryGetComponent(out AccidentPanel accidentPanel)) HandleAccident(accidentPanel);
             else if (target.TryGetComponent(out Cabinet cabinet)) cabinet.ToggleDoors();
             else if (target.TryGetComponent(out AirLock airLock)) StartCoroutine(PassAirLock(airLock));
         }
@@ -85,12 +85,12 @@ namespace OverFixed
             DeviceUsed?.Invoke();
         }
 
-        private void FixPanel(Panel panel)
+        private void HandleAccident(AccidentPanel accidentPanel)
         {
-            if (panel.IsAccident == false) return;
+            if (accidentPanel.IsAccident == false) return;
 
             DeviceUsed?.Invoke();
-            panel.OpenMiniGame();
+            accidentPanel.OpenMiniGame();
         }
 
         // 통과 시간 동안 조작을 잠그고 막대를 채운 뒤 반대편으로 옮긴다

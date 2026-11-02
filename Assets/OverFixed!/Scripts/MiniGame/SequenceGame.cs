@@ -30,15 +30,15 @@ namespace OverFixed
         [SerializeField] private Color currentColor = Color.white;  // 지금 누를 칸
         [SerializeField] private Color doneColor = Color.cyan;      // 맞춘 칸
 
-        public override EventType EventID => EventType.Sequence;
+        public override AccidentType AccidentID => AccidentType.Sequence;
 
         private readonly List<Direction> sequence = new List<Direction>();
         private readonly List<Image> cells = new List<Image>();
         private int inputIndex;     // 지금 누를 칸의 순서
 
-        public override void Begin(EventRow eventRow, int successCount)
+        public override void Begin(AccidentRow accidentRow, int successCount)
         {
-            base.Begin(eventRow, successCount);
+            base.Begin(accidentRow, successCount);
             MakeRow();
         }
 

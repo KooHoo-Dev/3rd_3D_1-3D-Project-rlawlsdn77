@@ -11,8 +11,9 @@ namespace OverFixed
         public float VoyageTime;            // 항해 시간 (초)
         public int ArrivalReward;           // 도착 보상 (크레딧)
         public float BaseDecay;             // 초당 줄어드는 코어 안정도 (%)
-        public float EventIntervalMin;      // 패널 사고 간격 (초)
-        public float EventIntervalMax;
+        public float AccidentIntervalMin;   // 패널 사고 간격 (초)
+        public float AccidentIntervalMax;
+        public float BadZoneWeight;         // 불리한 지대(ZoneCategory.Bad)를 뽑는 비중에 곱하는 배율
 
         public static VoyageRow FromCells(Dictionary<string, string> cells)
         {
@@ -22,8 +23,9 @@ namespace OverFixed
                 VoyageTime = TsvParser.ToFloat(cells["VoyageTime"]),
                 ArrivalReward = TsvParser.ToInt(cells["ArrivalReward"]),
                 BaseDecay = TsvParser.ToFloat(cells["BaseDecay"]),
-                EventIntervalMin = TsvParser.ToFloat(cells["EventIntervalMin"]),
-                EventIntervalMax = TsvParser.ToFloat(cells["EventIntervalMax"]),
+                AccidentIntervalMin = TsvParser.ToFloat(cells["AccidentIntervalMin"]),
+                AccidentIntervalMax = TsvParser.ToFloat(cells["AccidentIntervalMax"]),
+                BadZoneWeight = TsvParser.ToFloat(cells["BadZoneWeight"]),
             };
         }
     }

@@ -33,7 +33,7 @@ namespace OverFixed
             Cursor.visible = true;
 
             voyageIndexValue.text = "다음 항해 " + (gameManager.VoyageIndex + 1) + "번째";
-            quotaValue.text = gameManager.NextVoyage.QuotaBase + " 크레딧";
+            quotaValue.text = UIText.ToCredit(gameManager.NextVoyage.QuotaBase);
             recoveryValue.text = "즉시 코어 안정도 +" + coreConfig.StabilizerRecovery + "%";
             priceValue.text = coreConfig.StabilizerPrice.ToString();
             Draw();

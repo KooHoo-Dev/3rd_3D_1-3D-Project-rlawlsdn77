@@ -19,6 +19,18 @@ namespace OverFixed
             return Mathf.CeilToInt(stability) + "%";
         }
 
+        // 올림한 초 "29초"
+        public static string ToSeconds(float seconds)
+        {
+            return Mathf.CeilToInt(seconds) + "초";
+        }
+
+        // "75 크레딧"
+        public static string ToCredit(int credit)
+        {
+            return credit + " 크레딧";
+        }
+
         // 낸 할당량 / 할당량 "150 / 200"
         public static string ToQuota(int paidQuota, int quota)
         {

@@ -68,5 +68,19 @@ namespace OverFixed
             }
             return countList;
         }
+
+        // "Scrap:2|Crystal:1.5" → [(Scrap, 2), (Crystal, 1.5)]. 빈 칸이면 빈 목록
+        public static List<ItemWeight> ToItemWeights(string raw)
+        {
+            var weightList = new List<ItemWeight>();
+            if (raw.Length == 0) return weightList;
+
+            foreach (string part in raw.Split('|'))
+            {
+                string[] pair = part.Split(':');
+                weightList.Add(new ItemWeight { ItemID = ToEnum<ItemType>(pair[0].Trim()), Weight = ToFloat(pair[1].Trim()) });
+            }
+            return weightList;
+        }
     }
 }

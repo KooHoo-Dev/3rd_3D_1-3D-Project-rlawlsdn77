@@ -1,0 +1,12 @@
+﻿ZoneID	Name	Desc	Category	EffectType	EffectValue	SpawnWeight	MinVoyage
+#지대 ID	이름	설명	성격 (Good 유리, Mixed 혼합, Bad 불리)	효과 종류 (;로 여러 개)	효과 값 (EffectType과 같은 순서)	뽑는 비중 (0 = 뽑지 않음, 확장 지대)	처음 뽑히는 항해 번호
+ResourceField	자원 밀집 지대	재료가 두 배로 흘러오고 크리스탈이 1.5배 더 나옴	Good	SpawnRate;CrystalRate	2;1.5	1	1
+DebrisField	잔해 지대	고철이 두 배로 흘러옴	Good	ScrapRate	2	1	1
+Wreck	조난선	선외에 구조 캡슐이 나타남. 에어락에 넣으면 60 크레딧	Good	CapsuleSpawn;CapsuleReward	0.15;60	0	1
+Station	정거장	지나는 동안 안정화 물질 반값, 다음 정비 상점 가격 10% 할인	Good	StabilizerDiscount;NextMaintenanceDiscount	0.5;0.1	0	1
+Calm	고요 지대	사고가 나지 않지만 재료가 절반으로 줄어듦	Mixed	AccidentRate;SpawnRate	0;0.5	1	1
+TradeRoute	무역 항로	이 구간에 생긴 주문은 보상 1.5배, 제한시간 30% 단축	Mixed	OrderRewardRate;OrderTimeRate	1.5;0.7	0	1
+AsteroidBelt	소행성대	사고 발생 간격이 절반으로 줄어듦	Bad	AccidentRate	2	1	1
+IonStorm	이온 폭풍	사고가 3배 자주 나고 미니게임 성공 구간이 55%로 좁아짐	Bad	AccidentRate;MiniGameZoneRate	3;0.55	0	2
+Nebula	성운	선외 시야가 좁아지고 레이더에서 재료 표시가 사라짐	Bad			0	2
+Rapids	급류 지대	재료가 1.5배 빠르게 흘러감	Bad	FlowSpeedRate	1.5	1	1

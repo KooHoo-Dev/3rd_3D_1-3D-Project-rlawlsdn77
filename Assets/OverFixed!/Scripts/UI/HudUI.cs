@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 패널 사고 알림을 매 프레임 그린다
+    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 사고 알림(사고 이름, 남은 시간)을 매 프레임 그린다
     // 막대는 Fill의 anchorMax.x로 채운다
     public class HudUI : MonoBehaviour
     {
         [Serializable]
-        private class OrderCard
+        private class OrderSlotView
         {
             public TMP_Text itemsValue;     // "고철 1/2 · 크리스탈 0/1". 빈 칸이면 "새 주문"
             public TMP_Text rewardValue;
@@ -20,7 +20,7 @@ namespace OverFixed
 
         [SerializeField] private LocalPlayer localPlayer;
         [SerializeField] private OrderManager orderManager;
-        [SerializeField] private Panel panel;
+        [SerializeField] private AccidentPanel accidentPanel;
         [SerializeField] private PlayerControlConfig playerControlConfig;
         [SerializeField] private CoreConfig coreConfig;
 
@@ -35,7 +35,7 @@ namespace OverFixed
         [SerializeField] private RectTransform routeFill;
 
         [Header("주문 (OrderBoard의 칸 순서대로)")]
-        [SerializeField] private OrderCard[] orderCards;
+        [SerializeField] private OrderSlotView[] orderSlots;
 
         [Header("손, 사고 알림")]
         [SerializeField] private TMP_Text handsTitleValue;  // "손 0/1"
@@ -84,22 +84,22 @@ namespace OverFixed
         private void DrawOrders()
         {
             OrderBoard board = orderManager.Board;
-            for (int slotIndex = 0; slotIndex < orderCards.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < orderSlots.Length; slotIndex++)
             {
-                OrderCard card = orderCards[slotIndex];
+                OrderSlotView orderSlot = orderSlots[slotIndex];
                 ActiveOrder order = board.Orders[slotIndex];
                 if (order == null)
                 {
-                    card.itemsValue.text = "새 주문";
-                    card.rewardValue.text = "";
-                    card.timeValue.text = Mathf.CeilToInt(board.GetRefillTime(slotIndex)) + "s";
-                    SetFill(card.timeFill, 0f);
+                    orderSlot.itemsValue.text = "새 주문";
+                    orderSlot.rewardValue.text = "";
+                    orderSlot.timeValue.text = UIText.ToSeconds(board.GetRefillTime(slotIndex));
+                    SetFill(orderSlot.timeFill, 0f);
                     continue;
                 }
-                card.itemsValue.text = UIText.ToOrderItems(order);
-                card.rewardValue.text = order.Row.Reward + " CR";
-                card.timeValue.text = Mathf.CeilToInt(order.RemainingTime) + "s";
-                SetFill(card.timeFill, order.RemainingTime / order.Row.TimeLimit);
+                orderSlot.itemsValue.text = UIText.ToOrderItems(order);
+                orderSlot.rewardValue.text = UIText.ToCredit(order.Row.Reward);
+                orderSlot.timeValue.text = UIText.ToSeconds(order.RemainingTime);
+                SetFill(orderSlot.timeFill, order.RemainingTime / order.Row.TimeLimit);
             }
         }
 
@@ -113,9 +113,9 @@ namespace OverFixed
         // 항해가 끝나면(정산, 게임오버) 사고가 남아 있어도 화면 뒤에 보이지 않게 끈다
         private void DrawAccident(bool isPlaying)
         {
-            bool isShown = panel.IsAccident && isPlaying;
+            bool isShown = accidentPanel.IsAccident && isPlaying;
             accidentBox.SetActive(isShown);
-            if (isShown) accidentValue.text = "패널 고장 · " + Mathf.CeilToInt(panel.RemainingTime) + "s";
+            if (isShown) accidentValue.text = accidentPanel.CurrentAccident.Name + " · " + UIText.ToSeconds(accidentPanel.RemainingTime);
         }
 
         private static void SetFill(RectTransform fill, float rate)

@@ -11,8 +11,8 @@ namespace OverFixed
         [SerializeField] private Button quitButton;
 
         [Header("최고 기록")]
-        [SerializeField] private TMP_Text recordValue;          // "항해 n회"
-        [SerializeField] private TMP_Text totalCreditValue;     // "누적 크레딧 n"
+        [SerializeField] private TMP_Text recordVoyageValue;    // "항해 n회"
+        [SerializeField] private TMP_Text recordCreditValue;    // "누적 크레딧 n"
 
         private void Start()
         {
@@ -23,8 +23,8 @@ namespace OverFixed
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            recordValue.text = "항해 " + gameManager.Record.BestVoyageCount + "회";
-            totalCreditValue.text = "누적 크레딧 " + gameManager.Record.BestTotalCredit;
+            recordVoyageValue.text = "항해 " + gameManager.Record.BestVoyageCount + "회";
+            recordCreditValue.text = "누적 크레딧 " + gameManager.Record.BestTotalCredit;
         }
     }
 }

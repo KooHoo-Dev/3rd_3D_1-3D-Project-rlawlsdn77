@@ -12,6 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e23657e31e2903549af5206a1386aecc, type: 3}
   m_Name: ModuleConfig
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.ModuleConfig
-  MaxWidth: 5
-  MaxHeight: 5
   AirlockTime: 0.5

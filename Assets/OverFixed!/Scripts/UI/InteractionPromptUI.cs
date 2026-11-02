@@ -73,10 +73,10 @@ namespace OverFixed
                 return true;
             }
 
-            if (target.TryGetComponent(out Panel panel))
+            if (target.TryGetComponent(out AccidentPanel accidentPanel))
             {
-                isAvailable = panel.IsAccident;
-                label = isAvailable ? "패널 수리" : "이상 없음";
+                isAvailable = accidentPanel.IsAccident;
+                label = isAvailable ? "사고 처리" : "이상 없음";
                 return true;
             }
 

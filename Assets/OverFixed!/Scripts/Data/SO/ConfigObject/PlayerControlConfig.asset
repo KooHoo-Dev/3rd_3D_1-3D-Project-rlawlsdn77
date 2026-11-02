@@ -22,13 +22,11 @@ MonoBehaviour:
   SpaceDrag: 1.8
   BoundaryPush: 15
   CarryCount: 1
-  TractorRange: 15
-  TractorSpeed: 12
-  ExteriorPickRange: 4.5
   MouseSensitivity: 2
   MouseAxisScale: 0.1
   InteriorMaxLookAngle: 60
   ExteriorMaxLookAngle: 80
+  MaxLookDownAngle: 40
   AnimationDampTime: 0.1
   WalkStrideSpeed: 1.03
   RunStrideSpeed: 3.21
@@ -36,3 +34,6 @@ MonoBehaviour:
   LookAtBodyWeight: 0.3
   LookAtHeadWeight: 1
   HandIKBlendSpeed: 4
+  HandHoldGap: 0.05
+  HandGripFingerDirection: {x: 0, y: 0, z: 1}
+  HandGripThumbDirection: {x: 0, y: 1, z: 0}

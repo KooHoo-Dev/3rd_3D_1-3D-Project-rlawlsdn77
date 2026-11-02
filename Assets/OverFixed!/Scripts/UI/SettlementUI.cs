@@ -45,8 +45,8 @@ namespace OverFixed
             playerController.LockForScreen();
 
             quotaValue.text = UIText.ToQuota(gameManager.PaidQuota, gameManager.Quota) + " (완납)";
-            earnedCreditValue.text = "+" + gameManager.VoyageEarnedCredit + " 크레딧";
-            arrivalRewardValue.text = "+" + gameManager.Voyage.ArrivalReward + " 크레딧";
+            earnedCreditValue.text = "+" + UIText.ToCredit(gameManager.VoyageEarnedCredit);
+            arrivalRewardValue.text = "+" + UIText.ToCredit(gameManager.Voyage.ArrivalReward);
             orderValue.text = gameManager.OrderSuccessCount + " / " + gameManager.OrderFailCount;
             stabilityValue.text = UIText.ToStability(gameManager.Stability);
             voyageCountValue.text = gameManager.VoyageIndex.ToString();

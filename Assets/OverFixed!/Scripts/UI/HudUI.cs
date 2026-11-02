@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 사고 알림(사고 이름, 남은 시간)을 매 프레임 그린다
+    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 사고 알림(사고 이름, 자리, 남은 시간)을 매 프레임 그린다
     // 막대는 Fill의 anchorMax.x로 채운다
     public class HudUI : MonoBehaviour
     {
@@ -20,7 +20,7 @@ namespace OverFixed
 
         [SerializeField] private LocalPlayer localPlayer;
         [SerializeField] private OrderManager orderManager;
-        [SerializeField] private AccidentPanel accidentPanel;
+        [SerializeField] private AccidentManager accidentManager;
         [SerializeField] private PlayerControlConfig playerControlConfig;
         [SerializeField] private CoreConfig coreConfig;
 
@@ -113,9 +113,10 @@ namespace OverFixed
         // 항해가 끝나면(정산, 게임오버) 사고가 남아 있어도 화면 뒤에 보이지 않게 끈다
         private void DrawAccident(bool isPlaying)
         {
-            bool isShown = accidentPanel.IsAccident && isPlaying;
+            AccidentPanel activePanel = accidentManager.ActivePanel;
+            bool isShown = activePanel != null && activePanel.IsAccident && isPlaying;
             accidentBox.SetActive(isShown);
-            if (isShown) accidentValue.text = accidentPanel.CurrentAccident.Name + " · " + UIText.ToSeconds(accidentPanel.RemainingTime);
+            if (isShown) accidentValue.text = activePanel.CurrentAccident.Name + " · " + activePanel.LocationName + " · " + UIText.ToSeconds(activePanel.RemainingTime);
         }
 
         private static void SetFill(RectTransform fill, float rate)

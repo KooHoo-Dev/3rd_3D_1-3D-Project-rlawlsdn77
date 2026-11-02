@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace OverFixed
 {
-    // 비중에 비례해 하나를 뽑는다 (재료 종류, 사고 종류, 경로 지대)
+    // 비중에 비례해 하나를 뽑는다 (재료 종류, 사고 종류)
     public static class WeightedRandom
     {
         // 비중 배열에서 하나를 골라 그 번호를 돌려준다
         // 예: {6, 3, 1.2}이면 0번이 나올 확률은 6 / 10.2
-        // 비중이 0인 번호는 나오지 않는다 (뽑은 것을 0으로 바꿔 다시 뽑을 때). 모두 0이면 -1
+        // 비중이 0인 번호는 나오지 않는다. 모두 0이면 -1
         public static int PickIndex(float[] weights)
         {
             float total = 0f;

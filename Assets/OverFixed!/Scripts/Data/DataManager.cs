@@ -12,8 +12,6 @@ namespace OverFixed
         private static List<OrderRow> orderTable;
         private static List<VoyageRow> voyageTable;
         private static List<AccidentRow> accidentTable;
-        private static List<PlanetTypeRow> planetTypeTable;
-        private static List<ZoneRow> zoneTable;
 
         // 테이블에 없는 재료면 예외가 나서 TSV 누락을 바로 알 수 있다
         public static ItemRow GetItem(ItemType itemId)
@@ -47,18 +45,6 @@ namespace OverFixed
         {
             if (accidentTable == null) accidentTable = TsvParser.ParseRows(LoadTsv("AccidentTable"), AccidentRow.FromCells);
             return accidentTable;
-        }
-
-        public static IReadOnlyList<PlanetTypeRow> GetPlanetTypeRows()
-        {
-            if (planetTypeTable == null) planetTypeTable = TsvParser.ParseRows(LoadTsv("PlanetTypeTable"), PlanetTypeRow.FromCells);
-            return planetTypeTable;
-        }
-
-        public static IReadOnlyList<ZoneRow> GetZoneRows()
-        {
-            if (zoneTable == null) zoneTable = TsvParser.ParseRows(LoadTsv("ZoneTable"), ZoneRow.FromCells);
-            return zoneTable;
         }
 
         private static string LoadTsv(string tableName)

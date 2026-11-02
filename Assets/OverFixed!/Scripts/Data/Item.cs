@@ -40,11 +40,4 @@ namespace OverFixed
         public ItemType ItemID;
         public int Count;
     }
-
-    [Serializable]
-    public class ItemWeight
-    {
-        public ItemType ItemID;
-        public float Weight;
-    }
 }

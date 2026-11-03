@@ -9,7 +9,7 @@ namespace OverFixed
     {
         public static List<TRow> ParseRows<TRow>(string tsvText, Func<Dictionary<string, string>, TRow> fromCells)
         {
-            var rowList = new List<TRow>();
+            List<TRow> rowList = new List<TRow>();
             string[] lines = tsvText.TrimStart('﻿').Split('\n');
             string[] header = lines[0].Trim().Split('\t');
 
@@ -19,7 +19,7 @@ namespace OverFixed
                 if (line.Length == 0 || line.StartsWith("#")) continue;
 
                 string[] values = line.Split('\t');
-                var cells = new Dictionary<string, string>();
+                Dictionary<string, string> cells = new Dictionary<string, string>();
                 for (int index = 0; index < header.Length; index++)
                 {
                     cells[header[index].Trim()] = index < values.Length ? values[index].Trim() : "";
@@ -48,7 +48,7 @@ namespace OverFixed
         // "A;B" → [A, B]. 빈 칸이면 빈 목록
         public static List<string> ToList(string raw)
         {
-            var list = new List<string>();
+            List<string> list = new List<string>();
             foreach (string part in raw.Split(';'))
             {
                 string value = part.Trim();
@@ -60,11 +60,14 @@ namespace OverFixed
         // "Scrap:2|Crystal:1" → [(Scrap, 2), (Crystal, 1)]
         public static List<ItemCount> ToItemCounts(string raw)
         {
-            var countList = new List<ItemCount>();
+            List<ItemCount> countList = new List<ItemCount>();
             foreach (string part in raw.Split('|'))
             {
                 string[] pair = part.Split(':');
-                countList.Add(new ItemCount { ItemID = ToEnum<ItemType>(pair[0].Trim()), Count = ToInt(pair[1].Trim()) });
+                ItemCount itemCount = new ItemCount();
+                itemCount.ItemID = ToEnum<ItemType>(pair[0].Trim());
+                itemCount.Count = ToInt(pair[1].Trim());
+                countList.Add(itemCount);
             }
             return countList;
         }

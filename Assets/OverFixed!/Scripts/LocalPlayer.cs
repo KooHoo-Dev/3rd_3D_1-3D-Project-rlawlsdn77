@@ -35,11 +35,36 @@ namespace OverFixed
             GameObject target = interactionCube.FindNearestTarget();
             if (target == null) return;
 
-            if (target.TryGetComponent(out ItemObject item)) TakeItem(item);
-            else if (target.TryGetComponent(out Terminal terminal)) UseTerminal(terminal);
-            else if (target.TryGetComponent(out AccidentPanel accidentPanel)) HandleAccident(accidentPanel);
-            else if (target.TryGetComponent(out Cabinet cabinet)) cabinet.ToggleDoors();
-            else if (target.TryGetComponent(out AirLock airLock)) StartCoroutine(PassAirLock(airLock));
+            ItemObject item = target.GetComponent<ItemObject>();
+            if (item != null)
+            {
+                TakeItem(item);
+                return;
+            }
+
+            Terminal terminal = target.GetComponent<Terminal>();
+            if (terminal != null)
+            {
+                UseTerminal(terminal);
+                return;
+            }
+
+            AccidentPanel accidentPanel = target.GetComponent<AccidentPanel>();
+            if (accidentPanel != null)
+            {
+                HandleAccident(accidentPanel);
+                return;
+            }
+
+            Cabinet cabinet = target.GetComponent<Cabinet>();
+            if (cabinet != null)
+            {
+                cabinet.ToggleDoors();
+                return;
+            }
+
+            AirLock airLock = target.GetComponent<AirLock>();
+            if (airLock != null) StartCoroutine(PassAirLock(airLock));
         }
 
         public void LeaveItem()
@@ -51,7 +76,8 @@ namespace OverFixed
             Item.transform.position = transform.position + transform.forward * holdOffset.z;
             Item.GetComponent<Collider>().enabled = true;
             // 선외에서는 놓은 자리에 떠 있게 한다
-            if (Item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = playerController.MoveState == MoveState.Exterior;
+            Rigidbody itemBody = Item.GetComponent<Rigidbody>();
+            if (itemBody != null) itemBody.isKinematic = playerController.MoveState == MoveState.Exterior;
             Item = null;
         }
 
@@ -61,7 +87,8 @@ namespace OverFixed
 
             Item = SpawnManager.Instance.TakeItem(item);
             Item.GetComponent<Collider>().enabled = false;
-            if (Item.TryGetComponent(out Rigidbody itemBody)) itemBody.isKinematic = true;
+            Rigidbody itemBody = Item.GetComponent<Rigidbody>();
+            if (itemBody != null) itemBody.isKinematic = true;
             Item.transform.SetParent(holdParent);
             Item.transform.localPosition = holdOffset;
             Item.transform.localRotation = Quaternion.identity;

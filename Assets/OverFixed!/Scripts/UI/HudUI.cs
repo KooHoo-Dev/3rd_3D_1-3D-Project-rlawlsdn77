@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace OverFixed
 {
-    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 사고 알림(사고 이름, 자리, 남은 시간)을 매 프레임 그린다
+    // 항해 HUD. 안정도, 크레딧, 할당량, 도착까지 남은 시간, 주문 3칸, 손, 사고 알림(사고 이름, 자리, 남은 시간)과 사고 패널 위치 표시를 매 프레임 그린다
     // 막대는 Fill의 anchorMax.x로 채운다
     public class HudUI : MonoBehaviour
     {
@@ -42,6 +42,7 @@ namespace OverFixed
         [SerializeField] private TMP_Text handsValue;
         [SerializeField] private GameObject accidentBox;
         [SerializeField] private TMP_Text accidentValue;
+        [SerializeField] private WorldMarkerUI accidentMarker;  // 사고 패널 자리 표시 (빨강)
 
         // 경고가 아닐 때의 색 (프리팹에 정해 둔 색)
         private Image stabilityFillImage;
@@ -116,7 +117,13 @@ namespace OverFixed
             AccidentPanel activePanel = accidentManager.ActivePanel;
             bool isShown = activePanel != null && activePanel.IsAccident && isPlaying;
             accidentBox.SetActive(isShown);
-            if (isShown) accidentValue.text = activePanel.CurrentAccident.Name + " · " + activePanel.LocationName + " · " + UIText.ToSeconds(activePanel.RemainingTime);
+            if (isShown == false)
+            {
+                accidentMarker.Hide();
+                return;
+            }
+            accidentValue.text = activePanel.CurrentAccident.Name + " · " + activePanel.LocationName + " · " + UIText.ToSeconds(activePanel.RemainingTime);
+            accidentMarker.Show(activePanel.transform.position, "! " + activePanel.LocationName);
         }
 
         private static void SetFill(RectTransform fill, float rate)

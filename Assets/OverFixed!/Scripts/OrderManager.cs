@@ -16,7 +16,7 @@ namespace OverFixed
         {
             base.Awake();
 
-            var candidateRows = new List<OrderRow>();
+            List<OrderRow> candidateRows = new List<OrderRow>();
             foreach (OrderRow orderRow in DataManager.GetOrderRows())
             {
                 if (orderRow.RequireModule.Count == 0) candidateRows.Add(orderRow);

@@ -102,7 +102,7 @@ namespace OverFixed
         private void MakeTerminals(int pairCount)
         {
             ClearTerminals();
-            var colors = new List<Color>(wireColors);
+            List<Color> colors = new List<Color>(wireColors);
             Shuffle(colors);
             colors.RemoveRange(pairCount, colors.Count - pairCount);
 
@@ -168,7 +168,9 @@ namespace OverFixed
             for (int index = colors.Count - 1; index > 0; index--)
             {
                 int swapIndex = Random.Range(0, index + 1);
-                (colors[index], colors[swapIndex]) = (colors[swapIndex], colors[index]);
+                Color temp = colors[index];
+                colors[index] = colors[swapIndex];
+                colors[swapIndex] = temp;
             }
         }
     }

@@ -82,8 +82,8 @@ namespace OverFixed
         private void MakeRow()
         {
             sequence.Clear();
-            var directionCounts = new int[DirectionCount];
-            var candidates = new List<Direction>();
+            int[] directionCounts = new int[DirectionCount];
+            List<Direction> candidates = new List<Direction>();
             for (int cellIndex = 0; cellIndex < miniGameConfig.SequenceLength; cellIndex++)
             {
                 candidates.Clear();

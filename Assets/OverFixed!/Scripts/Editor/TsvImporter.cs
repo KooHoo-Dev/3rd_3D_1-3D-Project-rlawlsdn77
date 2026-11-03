@@ -10,7 +10,7 @@ namespace OverFixed
     {
         public override void OnImportAsset(AssetImportContext context)
         {
-            var textAsset = new TextAsset(File.ReadAllText(context.assetPath));
+            TextAsset textAsset = new TextAsset(File.ReadAllText(context.assetPath));
             context.AddObjectToAsset("text", textAsset);
             context.SetMainObject(textAsset);
         }

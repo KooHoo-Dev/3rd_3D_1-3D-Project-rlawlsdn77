@@ -40,7 +40,7 @@ namespace OverFixed
         // "고철 1/2 · 크리스탈 0/1"
         public static string ToOrderItems(ActiveOrder order)
         {
-            var itemTexts = new List<string>();
+            List<string> itemTexts = new List<string>();
             foreach (ItemCount requireItem in order.Row.RequireItems)
             {
                 string itemName = DataManager.GetItem(requireItem.ItemID).Name;

@@ -32,7 +32,16 @@ namespace OverFixed
         // 플레이어가 이번 프레임에 움직인 뒤의 위치로 찾도록 LateUpdate에서 그린다
         private void LateUpdate()
         {
-            if (playerController.IsControlLocked || TryGetPrompt(interactionCube.FindNearestTarget(), out string label, out bool isAvailable) == false)
+            if (playerController.IsControlLocked)
+            {
+                prompt.SetActive(false);
+                return;
+            }
+
+            GameObject target = interactionCube.FindNearestTarget();
+            string label;
+            bool isAvailable;
+            if (TryGetPrompt(target, out label, out isAvailable) == false)
             {
                 prompt.SetActive(false);
                 return;
@@ -53,14 +62,15 @@ namespace OverFixed
 
             ItemObject heldItem = localPlayer.Item;
 
-            if (target.TryGetComponent(out ItemObject item))
+            ItemObject item = target.GetComponent<ItemObject>();
+            if (item != null)
             {
                 isAvailable = heldItem == null;
                 label = isAvailable ? item.Row.Name + " 줍기" : "손이 찼음";
                 return true;
             }
 
-            if (target.TryGetComponent(out Terminal _))
+            if (target.GetComponent<Terminal>() != null)
             {
                 if (heldItem == null)
                 {
@@ -73,14 +83,15 @@ namespace OverFixed
                 return true;
             }
 
-            if (target.TryGetComponent(out AccidentPanel accidentPanel))
+            AccidentPanel accidentPanel = target.GetComponent<AccidentPanel>();
+            if (accidentPanel != null)
             {
                 isAvailable = accidentPanel.IsAccident;
                 label = isAvailable ? "사고 처리" : "이상 없음";
                 return true;
             }
 
-            if (target.TryGetComponent(out AirLock _))
+            if (target.GetComponent<AirLock>() != null)
             {
                 label = playerController.MoveState == MoveState.Interior ? "선외로 나가기" : "선내로 들어가기";
                 return true;

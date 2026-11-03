@@ -14225,7 +14225,6 @@ GameObject:
   - component: {fileID: 895448393}
   - component: {fileID: 895448399}
   - component: {fileID: 895448400}
-  - component: {fileID: 895448401}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -14380,31 +14379,6 @@ MonoBehaviour:
   playerHead: {fileID: 747271073}
   playerCamera: {fileID: 1991197858}
   maxAimDistance: 30
---- !u!114 &895448401
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 895448392}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4500ee9c5a6b81c4196c2eed52e06ba8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OverFixed.InteractionHighlighter
-  interactionCube: {fileID: 1664890832}
-  playerController: {fileID: 895448393}
-  highlights:
-  - {fileID: 1470582997}
-  - {fileID: 2146359918}
-  - {fileID: 1171463090}
-  - {fileID: 1611848546}
-  - {fileID: 2041574335}
-  - {fileID: 1500183735}
-  - {fileID: 1325483816}
-  - {fileID: 130263650}
-  idleIntensity: 0.3
-  aimedIntensity: 1
 --- !u!4 &898015574 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4972752018885984, guid: 8ae15043bd3a57842b91d1aefca1f3ce, type: 3}

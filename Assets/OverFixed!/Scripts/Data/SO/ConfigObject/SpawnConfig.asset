@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OverFixed.SpawnConfig
   BaseSpawnRate: 1.5
   FlowSpeed: 2.5
-  PoolCount: 40
+  PoolCount: 30
   FlowItemScale: 5

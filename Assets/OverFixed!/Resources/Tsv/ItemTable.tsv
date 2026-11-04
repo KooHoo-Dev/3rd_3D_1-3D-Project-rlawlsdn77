@@ -1,8 +1,8 @@
 ﻿ItemID	Name	SpawnWeight	SpawnDistanceMin
 #재료 ID	이름	생성 비중	생성 위치 최소 (0 안쪽 ~ 1 바깥, 지금 안 씀)
-Scrap	고철	6	0
-Fuel	연료 셀	3	0.2
-Crystal	크리스탈	1.2	0.8
+Scrap	고철	5	0
+Fuel	연료 셀	3	0.3
+Crystal	크리스탈	2	0.6
 Capsule	구조 캡슐	0	0.4
 Alloy	합금판	0	0
 Part	정밀 부품	0	0
